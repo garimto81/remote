@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원격 프로덕션 옵션 상세 분석 (시인성 개선)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: 사용자의 최종 피드백을 반영하여, '사전 물류 이동' 다이어그램을 각 옵션의 특정 요구사항에 맞게 동적으로 생성하도록 구조를 완성했습니다. 옵션 1/2의 경우 'PTZ 컨트롤러'만 한국으로 이동하는 것을, 옵션 3의 경우 모든 장비가 키프로스로 이동하는 것을 명확히 시각화합니다. 이 동적 구조는 각 옵션의 전제 조건을 명확히 하고, 사용자가 옵션 간의 근본적인 차이를 쉽게 파악하도록 돕습니다. -->
+    <!-- Visualization & Content Choices: '물류 이동' (Goal: Organize) 다이어그램은 JavaScript로 동적으로 생성되며, 이동 품목('PTZ 컨트롤러', '모든 장비' 등)을 라벨로 명시하여 정확한 정보를 전달합니다. '운영 제어' (Goal: Organize/Compare) 다이어그램에서는 백업 제어 대상을 명확히 하고(예: 현장 백업 -> 피처 테이블 1), 모든 제어선이 '스위칭 컷', 'FR7 제어'까지 정확히 연결되도록 하여 제어 흐름의 명확성을 극대화했습니다. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8fafc;
+        }
+        .active-btn {
+            background-color: #2563eb !important;
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .control-line, .logistics-line {
+            position: absolute;
+            border-style: solid;
+            border-color: #3b82f6;
+            border-width: 0 0 2px 0;
+            transform-origin: left center;
+            z-index: 10;
+        }
+        .control-line.dashed {
+            border-style: dashed;
+            border-color: #f97316;
+        }
+        .logistics-line {
+            border-color: #4b5563;
+            border-style: dashed;
+        }
+        .arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 8px solid #3b82f6;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .arrow.dashed { border-left-color: #f97316; }
+        .arrow.logistics { border-left-color: #4b5563; }
+
+        .logistics-label {
+            position: absolute;
+            background-color: rgba(249, 250, 251, 0.85);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1f2937;
+            white-space: nowrap;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            border: 1px solid #e5e7eb;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .location-box { z-index: 20; position: relative; }
+        .feature-table {
+            background-color: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            color: #111827;
+        }
+        .control-point {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8">
+
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">원격 프로덕션 옵션 상세 분석</h1>
+            <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
+        </header>
+
+        <main>
+            <div class="flex justify-center mb-10">
+                <div class="flex p-1.5 bg-slate-200 rounded-xl space-x-2">
+                    <button id="btn-option1" class="option-btn px-4 py-2 sm:px-6 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">옵션 1</button>
+                    <button id="btn-option2" class="option-btn px-4 py-2 sm:px-6 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">옵션 2</button>
+                    <button id="btn-option3" class="option-btn px-4 py-2 sm:px-6 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">옵션 3</button>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-5 gap-8">
+                
+                <div class="lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6">시각 분석</h2>
+                    <div id="option-content" class="transition-opacity duration-500">
+                        <div id="logistics-section" class="p-6 rounded-xl bg-slate-50 border border-slate-200 mb-8 hidden">
+                            <h3 class="text-lg font-bold mb-4 text-slate-800 text-center">사전 물류 이동</h3>
+                            <div id="logistics-diagram" class="relative text-center h-32">
+                                <div id="log_prague" class="absolute text-center" style="left: 50%; top: 0; transform: translateX(-50%);">
+                                    <div class="p-3 bg-orange-100 text-orange-800 border-2 border-orange-200 rounded-lg shadow-sm">🇨🇿 프라하</div>
+                                </div>
+                                <div id="log_korea" class="absolute text-center" style="left: 20%; top: 100px; transform: translateX(-50%);">
+                                    <div class="p-3 bg-blue-100 text-blue-800 border-2 border-blue-200 rounded-lg shadow-sm">🇰🇷 한국</div>
+                                </div>
+                                <div id="log_cyprus" class="absolute text-center" style="left: 80%; top: 100px; transform: translateX(-50%);">
+                                    <div class="p-3 bg-green-100 text-green-800 border-2 border-green-200 rounded-lg shadow-sm">🇨🇾 키프로스</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="diagram-container">
+                            <h3 class="text-lg font-bold mb-4 text-slate-800 text-center">운영 제어 흐름</h3>
+                            <div class="relative h-80 md:h-96 flex justify-around items-center px-4">
+                                <div id="loc-korea" class="location-box text-center w-32">
+                                    <div class="p-4 bg-blue-500 text-white rounded-lg shadow-lg">🇰🇷 한국</div>
+                                    <div class="text-sm font-semibold mt-1">원격 제어 센터</div>
+                                </div>
+                                <div id="loc-cyprus" class="location-box text-center w-56">
+                                    <div class="p-4 bg-green-500 text-white rounded-lg shadow-lg">
+                                        <div class="font-bold mb-3">🇨🇾 키프로스</div>
+                                        <div class="space-y-3">
+                                            <div id="ft1" class="feature-table"><div class="font-bold mb-2">피처 테이블 1</div><div class="space-y-1"><div id="ft1-sw" class="control-point">스위칭 컷</div><div id="ft1-fr7" class="control-point">FR7 제어</div></div></div>
+                                            <div id="ft2" class="feature-table"><div class="font-bold mb-2">피처 테이블 2</div><div class="space-y-1"><div id="ft2-sw" class="control-point">스위칭 컷</div><div id="ft2-fr7" class="control-point">FR7 제어</div></div></div>
+                                            <div id="cyprus-control" class="feature-table bg-orange-400 text-white mt-4 hidden">현장 제어/백업</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-sm font-semibold mt-1">프로덕션 현장</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6" id="option-title"></h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h3>
+                            <p id="option-concept" class="text-slate-600 leading-relaxed"></p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 수준</h3>
+                            <div id="option-risk" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h3>
+                            <ul id="option-pros" class="space-y-2"></ul>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h3>
+                            <ul id="option-cons" class="space-y-2"></ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <section id="quantitative-comparison" class="mt-16">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <h2 class="text-2xl font-bold mb-4 text-center text-slate-900">정량적 비교 분석</h2>
+                    <div class="chart-container">
+                       <canvas id="optionsRadarChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-16 pt-8 border-t border-slate-200">
+            <p class="text-slate-500 text-sm">&copy; 2024 Interactive System Analysis. All Rights Reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        const optionsData = {
+            option1: {
+                title: '옵션 1: 완전 원격',
+                logistics: { required: true, korea: 'PTZ 컨트롤러', cyprus: '기타 현장 장비' },
+                concept: '프라하의 PTZ 컨트롤러는 한국으로, 나머지 장비는 키프로스로 이동합니다. 이후, 한국에서 모든 제어를 담당하며 현장에는 제어 백업이 없습니다.',
+                risk: { text: '최상', class: 'bg-red-100 text-red-800' },
+                pros: ['운영 및 출장 비용 최소화', '완전 중앙 집중식 제어로 효율성 증대'],
+                cons: ['네트워크/시스템 장애 시 방송 완전 중단', '현장 문제 발생 시 즉각적인 물리적 대응 불가'],
+                diagram: () => {
+                    document.getElementById('cyprus-control').classList.add('hidden');
+                    const korea = document.getElementById('loc-korea');
+                    const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
+                    const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
+                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(korea, ft2_sw, 'main'), createControlLine(korea, ft2_fr7, 'main')].forEach(l => korea.parentElement.appendChild(l));
+                }
+            },
+            option2: {
+                title: '옵션 2: 원격 + 현장 백업',
+                logistics: { required: true, korea: 'PTZ 컨트롤러 (주)', cyprus: 'PTZ 컨트롤러 (백업) 및 기타' },
+                concept: '프라하의 장비를 한국(주 제어용)과 키프로스(백업용)로 보냅니다. 평소에는 한국이 모든 제어를 하지만, 비상시 현장에서 피처 테이블 1을 백업 제어할 수 있습니다.',
+                risk: { text: '중', class: 'bg-orange-100 text-orange-800' },
+                pros: ['원격 시스템 장애 시에도 방송 연속성 확보', '비용 효율과 안정성의 균형점 모색 가능'],
+                cons: ['현지 백업 시스템 구축 및 인력 체류 비용 발생', '주/백업 시스템 간 전환 프로토콜 및 훈련 필요'],
+                diagram: () => {
+                    document.getElementById('cyprus-control').classList.remove('hidden');
+                    const korea = document.getElementById('loc-korea'); const cyprusControl = document.getElementById('cyprus-control');
+                    const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
+                    const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
+                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(korea, ft2_sw, 'main'), createControlLine(korea, ft2_fr7, 'main'), createControlLine(cyprusControl, ft1_sw, 'backup'), createControlLine(cyprusControl, ft1_fr7, 'backup')].forEach(l => korea.parentElement.appendChild(l));
+                }
+            },
+            option3: {
+                title: '옵션 3: 하이브리드',
+                logistics: { required: true, korea: null, cyprus: '모든 장비' },
+                concept: '프라하의 모든 장비는 키프로스 현장으로 이동합니다. 이후, 한국이 피처 테이블 1을, 현장이 피처 테이블 2를 제어합니다. 현장은 피처 테이블 1의 백업도 담당합니다.',
+                risk: { text: '하', class: 'bg-green-100 text-green-800' },
+                pros: ['최고 수준의 안정성, 각 시스템의 독립적 운영', '장애 발생 시에도 중단 없는 방송 가능'],
+                cons: ['원격 운영을 통한 비용 절감 효과 감소', '현장 운영 인력 및 장비 부담이 가장 큼'],
+                diagram: () => {
+                    document.getElementById('cyprus-control').classList.remove('hidden');
+                    const korea = document.getElementById('loc-korea'); const cyprusControl = document.getElementById('cyprus-control');
+                    const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
+                    const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
+                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(cyprusControl, ft2_sw, 'main'), createControlLine(cyprusControl, ft2_fr7, 'main'), createControlLine(cyprusControl, ft1_sw, 'backup'), createControlLine(cyprusControl, ft1_fr7, 'backup')].forEach(l => korea.parentElement.appendChild(l));
+                }
+            }
+        };
+
+        const buttons = { option1: document.getElementById('btn-option1'), option2: document.getElementById('btn-option2'), option3: document.getElementById('btn-option3') };
+        const elements = {
+            logisticsSection: document.getElementById('logistics-section'), logisticsDiagram: document.getElementById('logistics-diagram'),
+            title: document.getElementById('option-title'), concept: document.getElementById('option-concept'),
+            risk: document.getElementById('option-risk'), pros: document.getElementById('option-pros'), cons: document.getElementById('option-cons'),
+            content: document.getElementById('option-content')
+        };
+        
+        function createLine(startEl, endEl, type, labelText = '') {
+            const container = startEl.closest('.relative');
+            if (!container) return;
+            const startRect = startEl.getBoundingClientRect(); const endRect = endEl.getBoundingClientRect(); const containerRect = container.getBoundingClientRect();
+            const startX = (startRect.left + startRect.width / 2) - containerRect.left; const startY = (startRect.top + startRect.height / 2) - containerRect.top;
+            let endX = (endRect.left + endRect.width / 2) - containerRect.left; let endY = (endRect.top + endRect.height / 2) - containerRect.top;
+            const dx = endX - startX; const dy = endY - startY; const length = Math.sqrt(dx*dx + dy*dy); const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+            const line = document.createElement('div');
+            line.style.width = `${length}px`; line.style.top = `${startY}px`; line.style.left = `${startX}px`; line.style.transform = `rotate(${angle}deg)`;
+            const arrow = document.createElement('div'); arrow.className = 'arrow'; line.appendChild(arrow);
+            if (type === 'backup') { line.className = 'control-line dashed'; arrow.classList.add('dashed');
+            } else if (type === 'logistics') { line.className = 'logistics-line'; arrow.classList.add('logistics');
+                if (labelText) { const label = document.createElement('div'); label.className = 'logistics-label'; label.textContent = labelText; label.style.left = '50%'; label.style.top = '-12px'; line.appendChild(label); }
+            } else { line.className = 'control-line'; }
+            return line;
+        }
+        
+        const createControlLine = (start, end, type) => createLine(start, end, type);
+        const createLogisticsLine = (start, end, label) => createLine(start, end, 'logistics', label);
+
+        function updateDisplay(optionKey) {
+            const data = optionsData[optionKey];
+            elements.content.style.opacity = 0;
+            setTimeout(() => {
+                const logisticsChildren = Array.from(elements.logisticsDiagram.children);
+                logisticsChildren.forEach(child => { if (!child.id) { elements.logisticsDiagram.removeChild(child); } });
+                if (data.logistics.required) {
+                    elements.logisticsSection.classList.remove('hidden');
+                    const prague = document.getElementById('log_prague'); const korea = document.getElementById('log_korea'); const cyprus = document.getElementById('log_cyprus');
+                    if (korea && data.logistics.korea) { korea.style.display = 'block'; elements.logisticsDiagram.appendChild(createLogisticsLine(prague, korea, data.logistics.korea));
+                    } else if (korea) { korea.style.display = 'none'; }
+                    if (cyprus && data.logistics.cyprus) { cyprus.style.display = 'block'; elements.logisticsDiagram.appendChild(createLogisticsLine(prague, cyprus, data.logistics.cyprus));
+                    } else if (cyprus) { cyprus.style.display = 'none'; }
+                } else { elements.logisticsSection.classList.add('hidden'); }
+
+                elements.title.textContent = data.title;
+                elements.concept.textContent = data.concept;
+                elements.risk.textContent = data.risk.text;
+                elements.risk.className = `inline-block px-4 py-1.5 text-base font-bold rounded-full ${data.risk.class}`;
+                
+                elements.pros.innerHTML = data.pros.map(item => `<li class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><span class="text-slate-600">${item}</span></li>`).join('');
+                elements.cons.innerHTML = data.cons.map(item => `<li class="flex items-start"><span class="text-red-500 mr-3 text-xl">✗</span><span class="text-slate-600">${item}</span></li>`).join('');
+
+                Object.values(buttons).forEach(btn => btn.classList.remove('active-btn'));
+                buttons[optionKey].classList.add('active-btn');
+                document.querySelectorAll('.control-line').forEach(line => line.remove());
+                data.diagram();
+                elements.content.style.opacity = 1;
+            }, 200);
+        }
+
+        Object.keys(buttons).forEach(key => { buttons[key].addEventListener('click', () => updateDisplay(key)); });
+
+        function initializeApp() {
+            updateDisplay('option1');
+            const ctx = document.getElementById('optionsRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['안정성', '비용 절감', '운영 단순성', '현지 의존도(낮음)'],
+                    datasets: [
+                        { label: '옵션 1', data: [1, 5, 5, 5], backgroundColor: 'rgba(239, 68, 68, 0.2)', borderColor: '#ef4444', pointBackgroundColor: '#ef4444', borderWidth: 2 },
+                        { label: '옵션 2', data: [4, 4, 3, 2], backgroundColor: 'rgba(249, 115, 22, 0.2)', borderColor: '#f97316', pointBackgroundColor: '#f97316', borderWidth: 2 },
+                        { label: '옵션 3', data: [5, 2, 2, 1], backgroundColor: 'rgba(34, 197, 94, 0.2)', borderColor: '#22c55e', pointBackgroundColor: '#22c55e', borderWidth: 2 }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: { r: { angleLines: { color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 14, weight: '600' }, color: '#334155' }, ticks: { backdropColor: 'rgba(255, 255, 255, 0.75)', stepSize: 1, max: 5, min: 0, color: '#64748b' } } },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 }, usePointStyle: true, color: '#475569' } }, tooltip: { callbacks: { title: (items) => items[0].dataset.label, label: (ctx) => `${ctx.label || ''}: ${ctx.parsed.r !== null ? ctx.parsed.r + '점' : ''}` } } }
+                }
+            });
+        }
+        
+        function redrawAllDiagrams() {
+            const activeBtn = document.querySelector('.active-btn');
+            if (activeBtn) {
+                const activeOptionKey = Object.keys(buttons).find(key => buttons[key] === activeBtn);
+                if (activeOptionKey) { setTimeout(() => { updateDisplay(activeOptionKey); }, 100); }
+            }
+        }
+
+        window.addEventListener('load', initializeApp);
+        window.addEventListener('resize', redrawAllDiagrams);
+    </script>
+</body>
+</html>
