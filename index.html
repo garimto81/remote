@@ -211,7 +211,7 @@
                     const korea = document.getElementById('loc-korea');
                     const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
                     const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
-                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(korea, ft2_sw, 'main'), createControlLine(korea, ft2_fr7, 'main')].forEach(l => korea.parentElement.appendChild(l));
+                    [createControlLine(korea, ft1_sw, 'main', -15), createControlLine(korea, ft1_fr7, 'main', -5), createControlLine(korea, ft2_sw, 'main', 5), createControlLine(korea, ft2_fr7, 'main', 15)].forEach(l => korea.parentElement.appendChild(l));
                 }
             },
             option2: {
@@ -226,7 +226,7 @@
                     const korea = document.getElementById('loc-korea'); const cyprusControl = document.getElementById('cyprus-control');
                     const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
                     const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
-                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(korea, ft2_sw, 'main'), createControlLine(korea, ft2_fr7, 'main'), createControlLine(cyprusControl, ft1_sw, 'backup'), createControlLine(cyprusControl, ft1_fr7, 'backup')].forEach(l => korea.parentElement.appendChild(l));
+                    [createControlLine(korea, ft1_sw, 'main', -15), createControlLine(korea, ft1_fr7, 'main', -5), createControlLine(korea, ft2_sw, 'main', 5), createControlLine(korea, ft2_fr7, 'main', 15), createControlLine(cyprusControl, ft1_sw, 'backup', -5), createControlLine(cyprusControl, ft1_fr7, 'backup', 5)].forEach(l => korea.parentElement.appendChild(l));
                 }
             },
             option3: {
@@ -241,7 +241,7 @@
                     const korea = document.getElementById('loc-korea'); const cyprusControl = document.getElementById('cyprus-control');
                     const ft1_sw = document.getElementById('ft1-sw'); const ft1_fr7 = document.getElementById('ft1-fr7');
                     const ft2_sw = document.getElementById('ft2-sw'); const ft2_fr7 = document.getElementById('ft2-fr7');
-                    [createControlLine(korea, ft1_sw, 'main'), createControlLine(korea, ft1_fr7, 'main'), createControlLine(cyprusControl, ft2_sw, 'main'), createControlLine(cyprusControl, ft2_fr7, 'main'), createControlLine(cyprusControl, ft1_sw, 'backup'), createControlLine(cyprusControl, ft1_fr7, 'backup')].forEach(l => korea.parentElement.appendChild(l));
+                    [createControlLine(korea, ft1_sw, 'main', -5), createControlLine(korea, ft1_fr7, 'main', 5), createControlLine(cyprusControl, ft2_sw, 'main', -15), createControlLine(cyprusControl, ft2_fr7, 'main', -5), createControlLine(cyprusControl, ft1_sw, 'backup', 5), createControlLine(cyprusControl, ft1_fr7, 'backup', 15)].forEach(l => korea.parentElement.appendChild(l));
                 }
             }
         };
@@ -254,24 +254,43 @@
             content: document.getElementById('option-content')
         };
         
-        function createLine(startEl, endEl, type, labelText = '') {
+        function createLine(startEl, endEl, type, labelText = '', startOffsetY = 0) {
             const container = startEl.closest('.relative');
             if (!container) return;
             const startRect = startEl.getBoundingClientRect(); const endRect = endEl.getBoundingClientRect(); const containerRect = container.getBoundingClientRect();
-            const startX = (startRect.left + startRect.width / 2) - containerRect.left; const startY = (startRect.top + startRect.height / 2) - containerRect.top;
-            let endX = (endRect.left + endRect.width / 2) - containerRect.left; let endY = (endRect.top + endRect.height / 2) - containerRect.top;
+            
+            let startX = (startRect.left + startRect.width / 2) - containerRect.left;
+            let startY = (startRect.top + startRect.height / 2) - containerRect.top;
+            let endX = (endRect.left + endRect.width / 2) - containerRect.left;
+            let endY = (endRect.top + endRect.height / 2) - containerRect.top;
+
+            if (type === 'logistics') {
+                startY = startRect.bottom - containerRect.top;
+                endY = endRect.top - containerRect.top;
+            } else {
+                startY += startOffsetY;
+            }
+
             const dx = endX - startX; const dy = endY - startY; const length = Math.sqrt(dx*dx + dy*dy); const angle = Math.atan2(dy, dx) * (180 / Math.PI);
             const line = document.createElement('div');
             line.style.width = `${length}px`; line.style.top = `${startY}px`; line.style.left = `${startX}px`; line.style.transform = `rotate(${angle}deg)`;
             const arrow = document.createElement('div'); arrow.className = 'arrow'; line.appendChild(arrow);
             if (type === 'backup') { line.className = 'control-line dashed'; arrow.classList.add('dashed');
             } else if (type === 'logistics') { line.className = 'logistics-line'; arrow.classList.add('logistics');
-                if (labelText) { const label = document.createElement('div'); label.className = 'logistics-label'; label.textContent = labelText; label.style.left = '50%'; label.style.top = '-12px'; line.appendChild(label); }
+                if (labelText) { 
+                    const label = document.createElement('div'); 
+                    label.className = 'logistics-label'; 
+                    label.textContent = labelText; 
+                    label.style.left = '50%'; 
+                    label.style.top = '-18px';
+                    label.style.transform = `translate(-50%, -50%) rotate(${-angle}deg)`;
+                    line.appendChild(label); 
+                }
             } else { line.className = 'control-line'; }
             return line;
         }
         
-        const createControlLine = (start, end, type) => createLine(start, end, type);
+        const createControlLine = (start, end, type, offsetY) => createLine(start, end, type, '', offsetY);
         const createLogisticsLine = (start, end, label) => createLine(start, end, 'logistics', label);
 
         function updateDisplay(optionKey) {
