@@ -5,39 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>서브 테이블 원격 운영 옵션 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chosen Palette: Warm Neutrals -->
-    <!-- Application Structure Plan: 사용자의 요구사항에 맞춰, 분석 대상을 '서브 테이블' 운영 방식으로 한정하고 옵션을 2가지로 압축했습니다. 메인 테이블은 'Pokercaster(외주)'가 운영함을 명시하여 분석 범위에서 제외시켰습니다. '사전 물류 이동'은 모든 옵션의 공통 전제 조건으로 상단에 고정 배치하고, 프라하에서 키프로스로만 이동하는 경로를 보여줍니다. 이 구조는 사용자가 핵심 검토 대상인 '서브 테이블 운영'에만 집중하고, 두 가지 옵션의 장단점을 명확히 비교할 수 있도록 돕습니다. -->
-    <!-- Visualization & Content Choices: '운영 제어 흐름' 다이어그램은 메인 테이블과 서브 테이블을 명확히 분리하고, 메인 테이블은 외주 운영임을 시각적으로 표시했습니다. 제어선은 이제 한국(원격) 또는 키프로스(백업)에서 '서브 테이블'로만 연결되어 제어 주체와 대상을 명확히 합니다. '정량적 비교 분석'의 레이더 차트도 2개 옵션만 비교하도록 수정하여, 사용자가 더 빠르고 직관적인 의사결정을 내릴 수 있도록 지원합니다. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- Pretendard 폰트 추가 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
+        /* 기본 스타일 및 커스텀 클래스 */
         body {
             font-family: 'Pretendard', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f8fafc;
         }
         .active-btn {
-            background-color: #2563eb !important;
+            background-color: #2563eb !important; /* blue-600 */
             color: white !important;
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
-        .control-line, .logistics-line {
+        /* 다이어그램 라인 및 화살표 스타일 */
+        .control-line {
             position: absolute;
             border-style: solid;
-            border-color: #3b82f6;
+            border-color: #3b82f6; /* blue-500 */
             border-width: 0 0 2px 0;
             transform-origin: left center;
             z-index: 10;
+            transition: all 0.3s ease-in-out;
         }
-        .control-line.dashed {
-            border-style: dashed;
-            border-color: #f97316;
+        .control-line.backup {
+            border-color: #f97316; /* orange-500 */
         }
-        .logistics-line {
-            border-color: #4b5563;
-            border-style: dashed;
+        .control-line.manual {
+            border-color: #10b981; /* emerald-500 */
+            border-style: dotted;
         }
         .arrow {
             position: absolute;
@@ -45,64 +44,72 @@
             height: 0;
             border-top: 6px solid transparent;
             border-bottom: 6px solid transparent;
-            border-left: 8px solid #3b82f6;
+            border-left: 8px solid #3b82f6; /* blue-500 */
             right: -8px;
             top: 50%;
             transform: translateY(-50%);
         }
-        .arrow.dashed { border-left-color: #f97316; }
-        .arrow.logistics { border-left-color: #4b5563; }
+        .arrow.backup { border-left-color: #f97316; } /* orange-500 */
+        .arrow.manual { border-left-color: #10b981; } /* emerald-500 */
 
-        .logistics-label {
-            position: absolute;
-            background-color: rgba(249, 250, 251, 0.85);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #1f2937;
-            white-space: nowrap;
-            transform: translate(-50%, -50%);
-            z-index: 11;
-            border: 1px solid #e5e7eb;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 350px;
-            max-height: 400px;
-        }
         .location-box { z-index: 20; position: relative; }
         .feature-table {
-            background-color: #f3f4f6;
-            border: 1px solid #e5e7eb;
+            background-color: #f3f4f6; /* gray-100 */
+            border: 1px solid #e5e7eb; /* gray-200 */
             padding: 0.75rem;
             border-radius: 0.5rem;
             text-align: center;
-            color: #111827;
+            color: #111827; /* gray-900 */
         }
         .control-point {
             font-size: 0.75rem;
             font-weight: 600;
-            color: #374151;
+            color: #374151; /* gray-700 */
             background-color: #ffffff;
-            border: 1px solid #d1d5db;
+            border: 1px solid #d1d5db; /* gray-300 */
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
             display: inline-block;
         }
         .external-op {
             border-style: dashed;
-            background-color: #e5e7eb;
-            color: #6b7280;
+            background-color: #e5e7eb; /* gray-200 */
+            color: #6b7280; /* gray-500 */
         }
-        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        /* 장비 카드 스타일 개선 */
+        .item-card {
+            display: flex;
+            align-items: center;
+            background-color: #f9fafb; /* gray-50 */
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #f3f4f6; /* gray-100 */
+        }
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: #4b5563; /* gray-600 */
+            background-color: #e5e7eb; /* gray-200 */
+            border-radius: 0.375rem;
+        }
+        .item-name {
+            flex-grow: 1;
+            font-weight: 500;
+            color: #374151; /* gray-700 */
+        }
+        .item-quantity {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #1f2937; /* gray-800 */
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="text-slate-800">
 
     <div class="container mx-auto p-4 sm:p-6 md:p-8">
 
@@ -111,46 +118,124 @@
             <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
         </header>
 
-        <main>
-            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg mb-8">
-                <h2 class="text-2xl font-bold text-slate-900 mb-4 text-center">공통 전제 조건</h2>
-                <div class="grid md:grid-cols-2 gap-6 items-center">
-                    <div>
-                        <h3 class="font-bold text-lg mb-2 text-slate-800">사전 물류 이동</h3>
-                        <p class="text-slate-600 mb-4">모든 운영 옵션은 프라하 창고의 장비가 키프로스 현장으로 이동하는 것을 전제로 합니다.</p>
-                        <div id="logistics-diagram" class="relative text-center h-24">
-                            <div id="log_prague" class="absolute text-center" style="left: 25%; top: 50%; transform: translateY(-50%);">
-                                <div class="p-3 bg-orange-100 text-orange-800 border-2 border-orange-200 rounded-lg shadow-sm">🇨🇿 프라하</div>
-                            </div>
-                            <div id="log_cyprus" class="absolute text-center" style="left: 75%; top: 50%; transform: translateY(-50%);">
-                                <div class="p-3 bg-green-100 text-green-800 border-2 border-green-200 rounded-lg shadow-sm">🇨🇾 키프로스</div>
-                            </div>
-                        </div>
-                    </div>
+        <main class="space-y-8">
+            <!-- 공통 전제 조건 섹션 -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6 text-center">1. 공통 전제 조건</h2>
+                <div class="space-y-8">
                     <div>
                         <h3 class="font-bold text-lg mb-2 text-slate-800">운영 주체</h3>
                         <p class="text-slate-600">메인 테이블은 외주 프로덕션(Pokercaster)에서 운영하며, 우리는 서브 테이블의 운영 방식만 검토합니다.</p>
                     </div>
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-slate-800">장비 현황</h3>
+                        <!-- 장비 목록을 2단 그리드로 변경 -->
+                        <div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
+                            <div>
+                                <h4 class="font-semibold text-blue-600 mb-3 border-b pb-2">🇨🇿 → 🇨🇾 이동 확정 장비</h4>
+                                <div class="space-y-3 pt-2">
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2a4 4 0 0 0-4 4v1.5c0 1.38 1.12 2.5 2.5 2.5h3c1.38 0 2.5-1.12 2.5-2.5V6a4 4 0 0 0-4-4z"></path><path d="M12 22a4 4 0 0 0 4-4v-1.5c0-1.38-1.12-2.5-2.5-2.5h-3c-1.38 0-2.5 1.12-2.5 2.5V18a4 4 0 0 0 4 4z"></path></svg></div>
+                                        <span class="item-name">Sony FR7 PTZ 카메라 렌즈</span>
+                                        <span class="item-quantity">1</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2a4 4 0 0 0-4 4v1.5c0 1.38 1.12 2.5 2.5 2.5h3c1.38 0 2.5-1.12 2.5-2.5V6a4 4 0 0 0-4-4z"></path></svg></div>
+                                        <span class="item-name">미러리스 카메라 렌즈</span>
+                                        <span class="item-quantity">1</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="12" x="3" y="6" rx="2"></rect><path d="M3 12h18"></path><path d="M9 3v3"></path><path d="M15 3v3"></path></svg></div>
+                                        <span class="item-name">미러리스 카메라 바디</span>
+                                        <span class="item-quantity">1</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17a1 1 0 0 1-1-1 2 2 0 0 1 2-2h1a2 2 0 0 1 2 2v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1h2"></path><path d="M13 5v14"></path><path d="m17 7-4 4 4 4"></path></svg></div>
+                                        <span class="item-name">PTZ 컨트롤러 및 기타 자재</span>
+                                        <span class="item-quantity">1</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8.5"></path><path d="m5 12 7-7 7 7"></path><path d="M12 2v2.5"></path></svg></div>
+                                        <span class="item-name">트라이포드</span>
+                                        <span class="item-quantity">15</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="18" r="2"></circle><circle cx="16" cy="18" r="2"></circle><path d="M12 18V6l4-2-8-2-4 2v10c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8"></path></svg></div>
+                                        <span class="item-name">트라이포드 달리</span>
+                                        <span class="item-quantity">2</span>
+                                    </div>
+                                </div>
+                                <!-- '추가 검토 필요' 항목을 이동 확정 장비 하단으로 이동 -->
+                                <div class="mt-8">
+                                    <h4 class="font-semibold text-orange-600 mb-3 border-b pb-2">⚠️ 추가 검토 필요</h4>
+                                    <div class="space-y-3 pt-2">
+                                        <div class="item-card">
+                                            <div class="item-icon">💡</div>
+                                            <span class="item-name">조명 (Sky Panel)</span>
+                                            <span class="item-quantity">4</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-green-600 mb-3 border-b pb-2">🇨🇾 키프로스 보유 장비</h4>
+                                <div class="space-y-3 pt-2">
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="12" rx="2" ry="2"></rect><circle cx="12" cy="13" r="3"></circle></svg></div>
+                                        <span class="item-name">Sony FR7 PTZ 카메라 바디</span>
+                                        <span class="item-quantity">8</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg></div>
+                                        <span class="item-name">스위처</span>
+                                        <span class="item-quantity">2</span>
+                                    </div>
+                                    <div class="item-card">
+                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg></div>
+                                        <span class="item-name">무선 장비</span>
+                                        <span class="item-quantity">6</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex justify-center mb-10">
-                <div class="flex p-1.5 bg-slate-200 rounded-xl space-x-2">
-                    <button id="btn-option1" class="option-btn px-4 py-2 sm:px-6 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">옵션 1</button>
-                    <button id="btn-option2" class="option-btn px-4 py-2 sm:px-6 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">옵션 2</button>
+            <!-- 옵션 선택 및 분석 섹션 -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">2. 운영 옵션 비교 분석</h2>
+                <p class="text-center text-slate-500 mb-8">아래 버튼을 클릭하여 각 옵션의 상세 내용을 확인하세요.</p>
+                
+                <div class="flex justify-center items-start space-x-4 md:space-x-8">
+                    <div class="text-center">
+                        <span class="font-bold text-slate-700 text-lg">옵션 1: 원격 + 현장</span>
+                        <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
+                             <button id="btn-option1a" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">a) 현장 1인</button>
+                             <button id="btn-option1b" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">b) 현장 2인</button>
+                        </div>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-bold text-slate-700 text-lg">옵션 2: 원격 + 현장 + 백업</span>
+                         <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
+                            <button id="btn-option2" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">통합 운영</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="grid lg:grid-cols-5 gap-8">
-                <div class="lg:col-span-3 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-6">시각 분석</h2>
-                    <div id="option-content" class="transition-opacity duration-500">
-                        <div id="diagram-container">
-                            <h3 class="text-lg font-bold mb-4 text-slate-800 text-center">운영 제어 흐름</h3>
-                            <div class="relative h-80 md:h-96 flex justify-around items-center px-4">
-                                <div id="loc-korea" class="location-box text-center w-32">
+                <div class="grid lg:grid-cols-5 gap-8 mt-10">
+                    <div class="lg:col-span-3">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">운영 제어 흐름</h3>
+                        <div id="option-content" class="transition-opacity duration-500">
+                            <div id="diagram-container" class="relative h-96 flex justify-around items-center px-4 bg-slate-50 rounded-xl border">
+                                <div id="loc-korea" class="location-box text-center w-40">
                                     <div class="p-4 bg-blue-500 text-white rounded-lg shadow-lg">🇰🇷 한국</div>
                                     <div class="text-sm font-semibold mt-1">원격 제어 센터</div>
+                                    <!-- 제어 아이콘 (주) -->
+                                    <div id="korea-control-points" class="mt-4 space-y-2">
+                                        <div id="korea-sub-sw" class="control-point bg-white shadow">스위칭 컷</div>
+                                        <div id="korea-sub-fr7" class="control-point bg-white shadow">FR7 제어</div>
+                                    </div>
                                 </div>
                                 <div id="loc-cyprus" class="location-box text-center w-56">
                                     <div class="p-4 bg-green-500 text-white rounded-lg shadow-lg">
@@ -160,8 +245,22 @@
                                                 <div class="font-bold mb-1">메인 테이블</div>
                                                 <div class="text-xs font-semibold">Pokercaster 운영</div>
                                             </div>
-                                            <div id="sub-table" class="feature-table"><div class="font-bold mb-2">서브 테이블</div><div class="space-y-1"><div id="sub-sw" class="control-point">스위칭 컷</div><div id="sub-fr7" class="control-point">FR7 제어</div></div></div>
-                                            <div id="cyprus-control" class="feature-table bg-orange-400 text-white mt-4 hidden">현장 백업</div>
+                                            <div id="sub-table" class="feature-table">
+                                                <div class="font-bold">서브 테이블</div>
+                                                <div id="cyprus-manual-control" class="mt-2 hidden">
+                                                    <div id="cyprus-freecam" class="control-point">
+                                                        프리 카메라 <span id="personnel-indicator" class="hidden font-bold text-emerald-600"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 옵션 2를 위한 현장 백업 -->
+                                            <div id="cyprus-control" class="feature-table bg-orange-400 text-white mt-4 hidden">
+                                                <span class="font-bold">현장 백업</span>
+                                                <div id="backup-control-points" class="mt-2 space-y-1">
+                                                    <div id="backup-sub-sw" class="control-point bg-white text-gray-700 shadow-sm">스위칭 컷</div>
+                                                    <div id="backup-sub-fr7" class="control-point bg-white text-gray-700 shadow-sm">FR7 제어</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="text-sm font-semibold mt-1">프로덕션 현장</div>
@@ -169,27 +268,19 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="lg:col-span-2 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                    <h2 class="text-2xl font-bold text-slate-900 mb-6" id="option-title"></h2>
-                    <div class="space-y-6">
-                        <div><h3 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h3><p id="option-concept" class="text-slate-600 leading-relaxed"></p></div>
-                        <div><h3 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 수준</h3><div id="option-risk" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div></div>
-                        <div><h3 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h3><ul id="option-pros" class="space-y-2"></ul></div>
-                        <div><h3 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h3><ul id="option-cons" class="space-y-2"></ul></div>
+                    <div class="lg:col-span-2">
+                        <h3 id="option-title" class="text-xl font-bold text-slate-800 mb-4 text-center"></h3>
+                        <div class="space-y-6">
+                            <div><h4 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h4><p id="option-concept" class="text-slate-600 leading-relaxed"></p></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">👥 인원 편제</h4><div id="option-personnel" class="space-y-1 text-slate-600"></div></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 수준</h4><div id="option-risk" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h4><ul id="option-pros" class="space-y-2"></ul></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h4><ul id="option-cons" class="space-y-2"></ul></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <section id="quantitative-comparison" class="mt-16">
-                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4 text-center text-slate-900">정량적 비교 분석</h2>
-                    <div class="chart-container">
-                       <canvas id="optionsRadarChart"></canvas>
-                    </div>
-                </div>
-            </section>
         </main>
 
         <footer class="text-center mt-16 pt-8 border-t border-slate-200">
@@ -199,123 +290,199 @@
 
     <script>
         const optionsData = {
-            option1: {
-                title: '옵션 1: 서브 테이블 완전 원격',
-                concept: '한국의 원격 제어 센터에서 서브 테이블의 모든 제어(스위칭, FR7)를 담당합니다. 현장에는 서브 테이블에 대한 제어 백업이 없습니다.',
-                risk: { text: '중', class: 'bg-orange-100 text-orange-800' },
-                pros: ['운영 및 출장 비용 최소화', '중앙 집중식 제어로 효율성 증대'],
-                cons: ['네트워크/시스템 장애 시 서브 테이블 방송 중단', '현장 문제 발생 시 즉각적인 물리적 대응 불가'],
+            option1a: {
+                title: '옵션 1a: 원격 제어 + 현장 1인',
+                concept: '한국에서 스위칭/FR7을 원격 제어하고, 키프로스 현장에서 1인이 프리 카메라를 직접 운영합니다.',
+                personnel: {
+                    korea: '원격 제어 1인',
+                    cyprus: '현장 프리캠 운영 1인'
+                },
+                risk: { text: '중', class: 'bg-yellow-100 text-yellow-800' },
+                pros: ['필수 인력만 현장에 파견하여 비용 효율적', '주요 제어는 원격으로 진행하여 효율성 확보'],
+                cons: ['현장 프리캠 운영자 1인에게 과부하 가능성', '원격 시스템 장애 시 현장 대응 능력 제한적'],
                 diagram: () => {
                     document.getElementById('cyprus-control').classList.add('hidden');
-                    const korea = document.getElementById('loc-korea');
-                    const sub_sw = document.getElementById('sub-sw');
-                    const sub_fr7 = document.getElementById('sub-fr7');
-                    [createControlLine(korea, sub_sw, 'main', -5), createControlLine(korea, sub_fr7, 'main', 5)].forEach(l => korea.parentElement.appendChild(l));
+                    document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('personnel-indicator').classList.add('hidden');
+                    
+                    const korea_sw = document.getElementById('korea-sub-sw');
+                    const korea_fr7 = document.getElementById('korea-sub-fr7');
+                    const freecam_op = document.getElementById('cyprus-freecam');
+                    const subTable = document.getElementById('sub-table');
+                    const diagramContainer = document.getElementById('diagram-container');
+
+                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
+                }
+            },
+            option1b: {
+                title: '옵션 1b: 원격 제어 + 현장 2인',
+                concept: '한국에서 스위칭/FR7을 원격 제어하고, 키프로스 현장에서 2인이 프리 카메라를 운영하여 안정성을 높입니다.',
+                personnel: {
+                    korea: '원격 제어 1인',
+                    cyprus: '현장 프리캠 운영 2인 (로테이션)'
+                },
+                risk: { text: '중하', class: 'bg-lime-100 text-lime-800' },
+                pros: ['현장 인력 2명으로 안정적인 프리캠 운영 가능', '현장 문제 발생 시 상호 백업 및 신속 대응'],
+                cons: ['옵션 1a 대비 출장 인원 증가로 비용 상승', '원격 시스템 장애 리스크는 여전히 존재'],
+                 diagram: () => {
+                    document.getElementById('cyprus-control').classList.add('hidden');
+                    document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    const indicator = document.getElementById('personnel-indicator');
+                    indicator.textContent = 'x2';
+                    indicator.classList.remove('hidden');
+                    
+                    const korea_sw = document.getElementById('korea-sub-sw');
+                    const korea_fr7 = document.getElementById('korea-sub-fr7');
+                    const freecam_op = document.getElementById('cyprus-freecam');
+                    const subTable = document.getElementById('sub-table');
+                    const diagramContainer = document.getElementById('diagram-container');
+
+                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
                 }
             },
             option2: {
-                title: '옵션 2: 서브 테이블 원격 + 현장 백업',
-                concept: '평소에는 한국에서 서브 테이블을 원격 제어하지만, 비상시를 대비해 키프로스 현장에 서브 테이블을 제어할 수 있는 백업 시스템과 인력을 배치합니다.',
-                risk: { text: '하', class: 'bg-green-100 text-green-800' },
-                pros: ['원격 시스템 장애 시에도 서브 테이블 방송 연속성 확보', '안정성 극대화'],
-                cons: ['현지 백업 시스템 구축 및 인력 체류 비용 발생', '주/백업 시스템 간 전환 프로토콜 및 훈련 필요'],
+                title: '옵션 2: 원격 + 현장 + 백업',
+                concept: '한국에서 스위칭/FR7을 원격 제어하고, 현장에서 1인이 프리 카메라를 상시 운영합니다. 비상시를 대비해 현장에 원격 제어(스위칭/FR7)를 백업할 수 있는 시스템과 인력을 추가로 배치하는 가장 안정적인 구조입니다.',
+                personnel: {
+                    korea: '원격 제어 1인',
+                    cyprus: '현장 프리캠 1인, 현장 백업 1인'
+                },
+                risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
+                pros: ['모든 기능에 대한 이중화로 안정성 극대화', '현장 프리캠 상시 운영으로 유연한 촬영 가능', '원격 및 현장 문제 동시 대응 가능'],
+                cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '운영 구조가 가장 복잡하여 긴밀한 소통 필요'],
                 diagram: () => {
-                    document.getElementById('cyprus-control').classList.remove('hidden');
-                    const korea = document.getElementById('loc-korea');
-                    const cyprusControl = document.getElementById('cyprus-control');
-                    const sub_sw = document.getElementById('sub-sw');
-                    const sub_fr7 = document.getElementById('sub-fr7');
-                    [createControlLine(korea, sub_sw, 'main', -5), createControlLine(korea, sub_fr7, 'main', 5), createControlLine(cyprusControl, sub_sw, 'backup', -5), createControlLine(cyprusControl, sub_fr7, 'backup', 5)].forEach(l => korea.parentElement.appendChild(l));
+                    document.getElementById('cyprus-control').classList.remove('hidden'); 
+                    document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('personnel-indicator').classList.add('hidden');
+
+                    const korea_sw = document.getElementById('korea-sub-sw');
+                    const korea_fr7 = document.getElementById('korea-sub-fr7');
+                    const backup_sw = document.getElementById('backup-sub-sw');
+                    const backup_fr7 = document.getElementById('backup-sub-fr7');
+                    const freecam_op = document.getElementById('cyprus-freecam');
+                    const subTable = document.getElementById('sub-table');
+                    const diagramContainer = document.getElementById('diagram-container');
+
+                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    
+                    diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
+                    diagramContainer.appendChild(createControlLine(backup_sw, subTable, 'backup'));
+                    diagramContainer.appendChild(createControlLine(backup_fr7, subTable, 'backup'));
                 }
             }
         };
 
-        const buttons = { option1: document.getElementById('btn-option1'), option2: document.getElementById('btn-option2') };
+        const buttons = { 
+            option1a: document.getElementById('btn-option1a'), 
+            option1b: document.getElementById('btn-option1b'), 
+            option2: document.getElementById('btn-option2') 
+        };
         const elements = {
-            logisticsDiagram: document.getElementById('logistics-diagram'),
-            title: document.getElementById('option-title'), concept: document.getElementById('option-concept'),
-            risk: document.getElementById('option-risk'), pros: document.getElementById('option-pros'), cons: document.getElementById('option-cons'),
+            title: document.getElementById('option-title'), 
+            concept: document.getElementById('option-concept'),
+            personnel: document.getElementById('option-personnel'),
+            risk: document.getElementById('option-risk'), 
+            pros: document.getElementById('option-pros'), 
+            cons: document.getElementById('option-cons'),
             content: document.getElementById('option-content')
         };
-        
-        function createLine(startEl, endEl, type, labelText = '', startOffsetY = 0) {
-            const container = startEl.closest('.relative');
-            if (!container) return;
-            const startRect = startEl.getBoundingClientRect(); const endRect = endEl.getBoundingClientRect(); const containerRect = container.getBoundingClientRect();
-            let startX = (startRect.left + startRect.width / 2) - containerRect.left; let startY = (startRect.top + startRect.height / 2) - containerRect.top;
-            let endX = (endRect.left + endRect.width / 2) - containerRect.left; let endY = (endRect.top + endRect.height / 2) - containerRect.top;
-            if (type === 'logistics') { startY = startRect.bottom - containerRect.top; endY = endRect.top - containerRect.top;
-            } else { startY += startOffsetY; }
-            const dx = endX - startX; const dy = endY - startY; const length = Math.sqrt(dx*dx + dy*dy); const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+        function createControlLine(startEl, endEl, type) {
+            const container = document.getElementById('diagram-container');
+            if (!container || !startEl || !endEl) return document.createElement('div');
+
+            const startRect = startEl.getBoundingClientRect();
+            const endRect = endEl.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const startX = startRect.left + startRect.width / 2 - containerRect.left;
+            let startY = startRect.top + startRect.height / 2 - containerRect.top;
+            const endX = endRect.left + endRect.width / 2 - containerRect.left;
+            const endY = endRect.top + endRect.height / 2 - containerRect.top;
+            
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
             const line = document.createElement('div');
-            line.style.width = `${length}px`; line.style.top = `${startY}px`; line.style.left = `${startX}px`; line.style.transform = `rotate(${angle}deg)`;
-            const arrow = document.createElement('div'); arrow.className = 'arrow'; line.appendChild(arrow);
-            if (type === 'backup') { line.className = 'control-line dashed'; arrow.classList.add('dashed');
-            } else if (type === 'logistics') { line.className = 'logistics-line'; arrow.classList.add('logistics');
-                if (labelText) { const label = document.createElement('div'); label.className = 'logistics-label'; label.textContent = labelText; label.style.left = '50%'; label.style.top = '-18px'; label.style.transform = `translate(-50%, -50%) rotate(${-angle}deg)`; line.appendChild(label); }
-            } else { line.className = 'control-line'; }
+            line.style.width = `${length}px`;
+            line.style.top = `${startY}px`;
+            line.style.left = `${startX}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            line.appendChild(arrow);
+            
+            line.className = 'control-line'; // 기본 클래스
+            if (type === 'backup') {
+                line.classList.add('backup');
+                arrow.classList.add('backup');
+            } else if (type === 'manual') {
+                line.classList.add('manual');
+                arrow.classList.add('manual');
+            }
+
             return line;
         }
-        
-        const createControlLine = (start, end, type, offsetY) => createLine(start, end, type, '', offsetY);
-        const createLogisticsLine = (start, end, label) => createLine(start, end, 'logistics', label);
 
         function updateDisplay(optionKey) {
             const data = optionsData[optionKey];
             elements.content.style.opacity = 0;
+            
             setTimeout(() => {
                 elements.title.textContent = data.title;
                 elements.concept.textContent = data.concept;
+                
+                const personnelData = data.personnel;
+                elements.personnel.innerHTML = `
+                  <p><span class="font-semibold">🇰🇷 한국:</span> ${personnelData.korea}</p>
+                  <p><span class="font-semibold">🇨🇾 키프로스:</span> ${personnelData.cyprus}</p>
+                `;
+
                 elements.risk.textContent = data.risk.text;
                 elements.risk.className = `inline-block px-4 py-1.5 text-base font-bold rounded-full ${data.risk.class}`;
                 elements.pros.innerHTML = data.pros.map(item => `<li class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><span class="text-slate-600">${item}</span></li>`).join('');
                 elements.cons.innerHTML = data.cons.map(item => `<li class="flex items-start"><span class="text-red-500 mr-3 text-xl">✗</span><span class="text-slate-600">${item}</span></li>`).join('');
+                
                 Object.values(buttons).forEach(btn => btn.classList.remove('active-btn'));
                 buttons[optionKey].classList.add('active-btn');
-                document.querySelectorAll('.control-line').forEach(line => line.remove());
+                
                 data.diagram();
+                
                 elements.content.style.opacity = 1;
             }, 200);
-        }
-
-        Object.keys(buttons).forEach(key => { buttons[key].addEventListener('click', () => updateDisplay(key)); });
-
-        function initializeApp() {
-            updateDisplay('option1');
-            const logisticsChildren = Array.from(elements.logisticsDiagram.children);
-            logisticsChildren.forEach(child => { if (!child.id) { elements.logisticsDiagram.removeChild(child); } });
-            const prague = document.getElementById('log_prague');
-            const cyprus = document.getElementById('log_cyprus');
-            elements.logisticsDiagram.appendChild(createLogisticsLine(prague, cyprus, '모든 장비'));
-
-            const ctx = document.getElementById('optionsRadarChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'radar',
-                data: {
-                    labels: ['안정성', '비용 절감', '운영 단순성', '현지 의존도(낮음)'],
-                    datasets: [
-                        { label: '옵션 1 (완전 원격)', data: [3, 5, 5, 5], backgroundColor: 'rgba(249, 115, 22, 0.2)', borderColor: '#f97316', pointBackgroundColor: '#f97316', borderWidth: 2 },
-                        { label: '옵션 2 (원격+백업)', data: [5, 3, 3, 2], backgroundColor: 'rgba(34, 197, 94, 0.2)', borderColor: '#22c55e', pointBackgroundColor: '#22c55e', borderWidth: 2 }
-                    ]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    scales: { r: { angleLines: { color: '#e2e8f0' }, grid: { color: '#e2e8f0' }, pointLabels: { font: { size: 14, weight: '600' }, color: '#334155' }, ticks: { backdropColor: 'rgba(255, 255, 255, 0.75)', stepSize: 1, max: 5, min: 0, color: '#64748b' } } },
-                    plugins: { legend: { position: 'bottom', labels: { font: { size: 14 }, usePointStyle: true, color: '#475569' } }, tooltip: { callbacks: { title: (items) => items[0].dataset.label, label: (ctx) => `${ctx.label || ''}: ${ctx.parsed.r !== null ? ctx.parsed.r + '점' : ''}` } } }
-                }
-            });
         }
         
         function redrawAllDiagrams() {
             const activeBtn = document.querySelector('.active-btn');
             if (activeBtn) {
                 const activeOptionKey = Object.keys(buttons).find(key => buttons[key] === activeBtn);
-                if (activeOptionKey) { setTimeout(() => { updateDisplay(activeOptionKey); }, 100); }
+                if (activeOptionKey) {
+                    optionsData[activeOptionKey].diagram();
+                }
             }
         }
 
+        function initializeApp() {
+            updateDisplay('option1a');
+        }
+
+        Object.keys(buttons).forEach(key => {
+            buttons[key].addEventListener('click', () => updateDisplay(key));
+        });
         window.addEventListener('load', initializeApp);
         window.addEventListener('resize', redrawAllDiagrams);
+
     </script>
 </body>
 </html>
