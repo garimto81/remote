@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서브 테이블 원격 운영 옵션 분석</title>
+    <title>v2.14 서브 테이블 원격 운영 옵션 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pretendard 폰트 추가 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -107,6 +107,35 @@
             font-size: 1.125rem;
             color: #1f2937; /* gray-800 */
         }
+        /* 순서도 스타일 */
+        .flow-node {
+            background-color: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            text-align: center;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            position: relative;
+        }
+        .flow-arrow-v {
+            width: 2px;
+            background-color: #9ca3af;
+            height: 1.5rem;
+            margin: 0.5rem auto;
+            position: relative;
+        }
+        .flow-arrow-v::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #9ca3af;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -114,7 +143,7 @@
     <div class="container mx-auto p-4 sm:p-6 md:p-8">
 
         <header class="text-center mb-12 md:mb-16">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">서브 테이블 원격 운영 옵션 분석</h1>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">v2.14 서브 테이블 원격 운영 옵션 분석</h1>
             <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
         </header>
 
@@ -127,12 +156,12 @@
                         <h3 class="font-bold text-lg mb-2 text-slate-800">운영 주체</h3>
                         <p class="text-slate-600">메인 테이블은 외주 프로덕션(Pokercaster)에서 운영하며, 우리는 서브 테이블의 운영 방식만 검토합니다.</p>
                     </div>
+                    <!-- 장비 현황 섹션 -->
                     <div>
                         <h3 class="font-bold text-lg mb-4 text-slate-800">장비 현황</h3>
-                        <!-- 장비 목록을 2단 그리드로 변경 -->
                         <div class="grid md:grid-cols-2 gap-x-8 gap-y-6">
                             <div>
-                                <h4 class="font-semibold text-blue-600 mb-3 border-b pb-2">🇨🇿 → 🇨🇾 이동 확정 장비</h4>
+                                <h4 class="font-semibold text-blue-600 mb-3 border-b pb-2">프라하 보유 장비 (이동 대상)</h4>
                                 <div class="space-y-3 pt-2">
                                     <div class="item-card">
                                         <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.5"></circle><path d="M12 2a4 4 0 0 0-4 4v1.5c0 1.38 1.12 2.5 2.5 2.5h3c1.38 0 2.5-1.12 2.5-2.5V6a4 4 0 0 0-4-4z"></path><path d="M12 22a4 4 0 0 0 4-4v-1.5c0-1.38-1.12-2.5-2.5-2.5h-3c-1.38 0-2.5 1.12-2.5 2.5V18a4 4 0 0 0 4 4z"></path></svg></div>
@@ -154,26 +183,28 @@
                                         <span class="item-name">PTZ 컨트롤러 및 기타 자재</span>
                                         <span class="item-quantity">1</span>
                                     </div>
-                                    <div class="item-card">
-                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8.5"></path><path d="m5 12 7-7 7 7"></path><path d="M12 2v2.5"></path></svg></div>
-                                        <span class="item-name">트라이포드</span>
-                                        <span class="item-quantity">15</span>
-                                    </div>
-                                    <div class="item-card">
-                                        <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="18" r="2"></circle><circle cx="16" cy="18" r="2"></circle><path d="M12 18V6l4-2-8-2-4 2v10c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8"></path></svg></div>
-                                        <span class="item-name">트라이포드 달리</span>
-                                        <span class="item-quantity">2</span>
-                                    </div>
                                 </div>
-                                <!-- '추가 검토 필요' 항목을 이동 확정 장비 하단으로 이동 -->
-                                <div class="mt-8">
-                                    <h4 class="font-semibold text-orange-600 mb-3 border-b pb-2">⚠️ 추가 검토 필요</h4>
+                                <!-- 검토 필요 품목 섹션 -->
+                                <div class="mt-6">
+                                    <h4 class="font-semibold text-orange-600 mb-3 border-b pb-2">⚠️ 운송 방식 검토 필요</h4>
                                     <div class="space-y-3 pt-2">
+                                        <div class="item-card">
+                                            <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8.5"></path><path d="m5 12 7-7 7 7"></path><path d="M12 2v2.5"></path></svg></div>
+                                            <span class="item-name">트라이포드</span>
+                                            <span class="item-quantity">15</span>
+                                        </div>
+                                        <div class="item-card">
+                                            <div class="item-icon"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="18" r="2"></circle><circle cx="16" cy="18" r="2"></circle><path d="M12 18V6l4-2-8-2-4 2v10c0 1.1.9 2 2 2h12a2 2 0 0 0 2-2V8"></path></svg></div>
+                                            <span class="item-name">트라이포드 달리</span>
+                                            <span class="item-quantity">2</span>
+                                        </div>
+                                         <p class="text-xs text-orange-700 pl-2">※ 항공 운송 가능 여부 검토 필요</p>
                                         <div class="item-card">
                                             <div class="item-icon">💡</div>
                                             <span class="item-name">조명 (Sky Panel)</span>
                                             <span class="item-quantity">4</span>
                                         </div>
+                                        <p class="text-xs text-red-700 font-bold pl-2">※ 항공 운송 불가 품목</p>
                                     </div>
                                 </div>
                             </div>
@@ -199,6 +230,60 @@
                             </div>
                         </div>
                     </div>
+                     <!-- 운송 옵션 섹션 -->
+                    <div>
+                        <h3 class="font-bold text-lg mb-4 text-slate-800">프라하 장비 운송 옵션</h3>
+                        <div class="grid md:grid-cols-3 gap-6 mt-4">
+                            <!-- 옵션 1: 항공 수화물 -->
+                            <div class="border rounded-lg p-4 bg-slate-50 flex flex-col">
+                                <div class="text-center mb-3">
+                                    <span class="text-3xl">✈️</span>
+                                    <h4 class="font-bold text-lg">항공 수화물</h4>
+                                </div>
+                                <div class="text-center mb-4 p-2 bg-blue-100 rounded-md">
+                                    <p class="font-bold text-blue-800 text-lg">$2,000</p>
+                                    <p class="text-xs text-blue-600">(항공 인원 4~8인 필요)</p>
+                                </div>
+                                <ul class="space-y-2 text-sm mt-auto">
+                                    <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>가장 빠르고 간편한 운송</span></li>
+                                    <li class="flex items-start"><span class="text-red-500 mr-2">✗</span><span class="font-bold text-red-600">조명(Sky Panel) 운송 불가</span></li>
+                                    <li class="flex items-start"><span class="text-red-500 mr-2">✗</span><span>분실 및 파손 위험 존재</span></li>
+                                </ul>
+                            </div>
+                            <!-- 옵션 2: ATA 까르네 -->
+                            <div class="border rounded-lg p-4 bg-slate-50 flex flex-col">
+                                <div class="text-center mb-3">
+                                    <span class="text-3xl">📄</span>
+                                    <h4 class="font-bold text-lg">ATA 까르네</h4>
+                                </div>
+                                <div class="text-center mb-4 p-2 bg-blue-100 rounded-md">
+                                    <p class="font-bold text-blue-800 text-lg">$30,000</p>
+                                    <p class="text-xs text-blue-600">(고정 비용)</p>
+                                </div>
+                                <ul class="space-y-2 text-sm mt-auto">
+                                    <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>면세/무관세 임시 통관</span></li>
+                                    <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>모든 장비 운송 가능</span></li>
+                                    <li class="flex items-start"><span class="text-red-500 mr-2">✗</span><span>서류 절차 복잡 및 비용 발생</span></li>
+                                </ul>
+                            </div>
+                            <!-- 옵션 3: 키프로스 수출 -->
+                            <div class="border rounded-lg p-4 bg-slate-50 flex flex-col">
+                                <div class="text-center mb-3">
+                                    <span class="text-3xl">🚢</span>
+                                    <h4 class="font-bold text-lg">키프로스 수출</h4>
+                                </div>
+                                <div class="text-center mb-4 p-2 bg-gray-200 rounded-md">
+                                    <p class="font-bold text-gray-800 text-lg">미정</p>
+                                    <p class="text-xs text-gray-600">(견적 필요)</p>
+                                </div>
+                                <ul class="space-y-2 text-sm mt-auto">
+                                    <li class="flex items-start"><span class="text-green-500 mr-2">✓</span><span>영구적인 장비 이전</span></li>
+                                    <li class="flex items-start"><span class="text-red-500 mr-2">✗</span><span>정식 통관 절차 및 관세 발생</span></li>
+                                    <li class="flex items-start"><span class="text-red-500 mr-2">✗</span><span>시간과 비용이 가장 많이 소요</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -207,7 +292,7 @@
                 <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">2. 운영 옵션 비교 분석</h2>
                 <p class="text-center text-slate-500 mb-8">아래 버튼을 클릭하여 각 옵션의 상세 내용을 확인하세요.</p>
                 
-                <div class="flex justify-center items-start space-x-4 md:space-x-8">
+                <div class="flex justify-center items-start flex-wrap gap-4 md:gap-8">
                     <div class="text-center">
                         <span class="font-bold text-slate-700 text-lg">옵션 1: 원격 + 현장</span>
                         <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
@@ -215,10 +300,16 @@
                              <button id="btn-option1b" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">b) 현장 2인</button>
                         </div>
                     </div>
-                     <div class="text-center">
-                        <span class="font-bold text-slate-700 text-lg">옵션 2: 원격 + 현장 + 백업</span>
+                    <div class="text-center">
+                        <span class="font-bold text-slate-700 text-lg">옵션 2: 하이브리드</span>
                          <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
-                            <button id="btn-option2" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">통합 운영</button>
+                            <button id="btn-option2" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">현장 카메라 제어</button>
+                        </div>
+                    </div>
+                     <div class="text-center">
+                        <span class="font-bold text-slate-700 text-lg">옵션 3: 완전 이중화</span>
+                         <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
+                            <button id="btn-option3" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">통합 백업</button>
                         </div>
                     </div>
                 </div>
@@ -247,13 +338,14 @@
                                             </div>
                                             <div id="sub-table" class="feature-table">
                                                 <div class="font-bold">서브 테이블</div>
-                                                <div id="cyprus-manual-control" class="mt-2 hidden">
+                                                <div id="cyprus-manual-control" class="mt-2 hidden space-y-1">
+                                                    <div id="cyprus-fr7" class="control-point">FR7 제어</div>
                                                     <div id="cyprus-freecam" class="control-point">
                                                         프리 카메라 <span id="personnel-indicator" class="hidden font-bold text-emerald-600"></span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- 옵션 2를 위한 현장 백업 -->
+                                            <!-- 옵션 3를 위한 현장 백업 -->
                                             <div id="cyprus-control" class="feature-table bg-orange-400 text-white mt-4 hidden">
                                                 <span class="font-bold">현장 백업</span>
                                                 <div id="backup-control-points" class="mt-2 space-y-1">
@@ -281,6 +373,81 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 업무 프로세스 순환 다이어그램 -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">3. 업무 프로세스</h2>
+                <p class="text-center text-slate-500 mb-8">상시 운영부터 비상 대응 및 정상화까지의 전체 업무 흐름을 나타냅니다.</p>
+                <div class="bg-slate-50 p-6 rounded-lg border flex flex-col items-center">
+                    <!-- 1. 상시 업무 루프 -->
+                    <div class="relative w-full max-w-lg p-4 border-2 border-blue-500 rounded-xl bg-blue-50 mb-4">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                            상시 업무 (Normal)
+                        </div>
+                        <div class="flex justify-around mt-6">
+                            <div class="text-center flow-node w-40">
+                                <p class="font-semibold">🇰🇷 원격 제어</p>
+                                <p class="text-xs text-slate-600 mt-1">스위칭/FR7</p>
+                            </div>
+                            <div class="text-center flow-node w-40">
+                                <p class="font-semibold">🇨🇾 현장 운영</p>
+                                <p class="text-xs text-slate-600 mt-1">프리 카메라</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 장애 발생 연결선 -->
+                    <div class="h-12 w-1 bg-red-400 relative my-2 flex items-center justify-center">
+                        <span class="absolute text-2xl -top-4 text-red-500">⚡️</span>
+                        <div class="absolute bottom-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-red-400"></div>
+                        <span class="absolute top-1/2 -translate-y-1/2 -right-2 translate-x-full text-xs font-bold text-red-600 whitespace-nowrap">장애 발생</span>
+                    </div>
+
+                    <!-- 2. 분기점 -->
+                    <div class="flow-node border-slate-500 w-48">
+                        <p class="font-semibold">장애 해결 프로세스</p>
+                    </div>
+
+                    <!-- 3. 옵션별 경로 -->
+                    <div class="w-full flex justify-center items-start mt-4">
+                        <!-- 옵션 1 & 2 경로 -->
+                        <div class="w-1/2 flex flex-col items-center px-4 border-r">
+                            <p class="font-bold mb-2">옵션 1 & 2</p>
+                            <div class="flow-arrow-v"></div>
+                            <div class="flow-node bg-yellow-100 border-yellow-500 w-48">
+                                <p class="font-semibold text-yellow-800">원격 제어 중단</p>
+                            </div>
+                            <div class="flow-arrow-v"></div>
+                            <div class="flow-node bg-blue-100 border-blue-500 w-48">
+                                <p class="font-semibold text-blue-700">장애 해결 (현장팀)</p>
+                            </div>
+                        </div>
+                        <!-- 옵션 3 경로 -->
+                        <div class="w-1/2 flex flex-col items-center px-4">
+                            <p class="font-bold mb-2">옵션 3</p>
+                            <div class="flow-arrow-v"></div>
+                            <div class="flow-node bg-orange-100 border-orange-500 w-48">
+                                <p class="font-semibold text-orange-700">방송 유지 (현장 백업)</p>
+                            </div>
+                            <div class="flow-arrow-v"></div>
+                            <div class="flow-node bg-blue-100 border-blue-500 w-48">
+                                <p class="font-semibold text-blue-700">장애 해결 (한국팀 우선)</p>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- 복귀 경로 -->
+                    <div class="w-full flex justify-center items-center mt-4">
+                        <div class="w-1/4 h-0.5 bg-slate-300"></div>
+                        <div class="w-1/4 h-0.5 bg-slate-300"></div>
+                    </div>
+                    <div class="w-0.5 h-6 bg-slate-300"></div>
+                    <div class="flow-arrow-v border-dashed border-green-500" style="background-color: transparent; border-left: 2px dashed #10b981;"></div>
+                    <div class="flow-node bg-green-100 border-green-500 w-48">
+                        <p class="font-semibold text-green-700">✅ 상시 업무 복귀</p>
+                    </div>
+                </div>
+            </div>
         </main>
 
         <footer class="text-center mt-16 pt-8 border-t border-slate-200">
@@ -303,7 +470,10 @@
                 diagram: () => {
                     document.getElementById('cyprus-control').classList.add('hidden');
                     document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('cyprus-fr7').classList.add('hidden');
+                    document.getElementById('cyprus-freecam').classList.remove('hidden');
                     document.getElementById('personnel-indicator').classList.add('hidden');
+                    document.getElementById('korea-sub-fr7').classList.remove('hidden');
                     
                     const korea_sw = document.getElementById('korea-sub-sw');
                     const korea_fr7 = document.getElementById('korea-sub-fr7');
@@ -330,6 +500,9 @@
                  diagram: () => {
                     document.getElementById('cyprus-control').classList.add('hidden');
                     document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('cyprus-fr7').classList.add('hidden');
+                    document.getElementById('cyprus-freecam').classList.remove('hidden');
+                    document.getElementById('korea-sub-fr7').classList.remove('hidden');
                     const indicator = document.getElementById('personnel-indicator');
                     indicator.textContent = 'x2';
                     indicator.classList.remove('hidden');
@@ -347,19 +520,52 @@
                 }
             },
             option2: {
-                title: '옵션 2: 원격 + 현장 + 백업',
-                concept: '한국에서 스위칭/FR7을 원격 제어하고, 현장에서 1인이 프리 카메라를 상시 운영합니다. 비상시를 대비해 현장에 원격 제어(스위칭/FR7)를 백업할 수 있는 시스템과 인력을 추가로 배치하는 가장 안정적인 구조입니다.',
+                title: '옵션 2: 하이브리드 제어',
+                concept: '한국에서 스위칭만 원격 제어하고, 현장에서 FR7과 프리 카메라를 직접 운영하여 카메라 워크의 안정성을 높입니다.',
+                personnel: {
+                    korea: '원격 스위칭 1인',
+                    cyprus: '현장 카메라 2인 (FR7, 프리캠)'
+                },
+                risk: { text: '중', class: 'bg-yellow-100 text-yellow-800' },
+                pros: ['카메라 제어의 지연 시간(Latency) 없음', '안정적인 현장 카메라 워크 품질 확보'],
+                cons: ['스위칭은 원격에 의존하여 장애 리스크 존재', '옵션 1a 대비 현장 인력 1명 증가'],
+                diagram: () => {
+                    document.getElementById('cyprus-control').classList.add('hidden');
+                    document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('cyprus-fr7').classList.remove('hidden');
+                    document.getElementById('cyprus-freecam').classList.remove('hidden');
+                    document.getElementById('personnel-indicator').classList.add('hidden');
+                    document.getElementById('korea-sub-fr7').classList.add('hidden');
+
+                    const korea_sw = document.getElementById('korea-sub-sw');
+                    const cyprus_fr7 = document.getElementById('cyprus-fr7');
+                    const freecam_op = document.getElementById('cyprus-freecam');
+                    const subTable = document.getElementById('sub-table');
+                    const diagramContainer = document.getElementById('diagram-container');
+
+                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(cyprus_fr7, subTable, 'manual'));
+                    diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
+                }
+            },
+            option3: {
+                title: '옵션 3: 완전 이중화',
+                concept: '한국 원격팀이 스위칭/FR7을, 현장팀이 프리캠을 담당합니다. 비상시를 대비해 현장에 원격 제어를 백업할 수 있는 인력과 시스템을 추가 배치하는 가장 안정적인 구조입니다.',
                 personnel: {
                     korea: '원격 제어 1인',
                     cyprus: '현장 프리캠 1인, 현장 백업 1인'
                 },
                 risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
-                pros: ['모든 기능에 대한 이중화로 안정성 극대화', '현장 프리캠 상시 운영으로 유연한 촬영 가능', '원격 및 현장 문제 동시 대응 가능'],
-                cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '운영 구조가 가장 복잡하여 긴밀한 소통 필요'],
+                pros: ['모든 기능에 대한 이중화로 안정성 극대화', '원격 및 현장 문제 동시 대응 가능'],
+                cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '운영 구조가 복잡함'],
                 diagram: () => {
                     document.getElementById('cyprus-control').classList.remove('hidden'); 
                     document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('cyprus-fr7').classList.add('hidden');
+                    document.getElementById('cyprus-freecam').classList.remove('hidden');
                     document.getElementById('personnel-indicator').classList.add('hidden');
+                    document.getElementById('korea-sub-fr7').classList.remove('hidden');
 
                     const korea_sw = document.getElementById('korea-sub-sw');
                     const korea_fr7 = document.getElementById('korea-sub-fr7');
@@ -383,7 +589,8 @@
         const buttons = { 
             option1a: document.getElementById('btn-option1a'), 
             option1b: document.getElementById('btn-option1b'), 
-            option2: document.getElementById('btn-option2') 
+            option2: document.getElementById('btn-option2'),
+            option3: document.getElementById('btn-option3')
         };
         const elements = {
             title: document.getElementById('option-title'), 
