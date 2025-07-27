@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>v2.14 서브 테이블 원격 운영 옵션 분석</title>
+    <title>v2.28 (복원) 서브 테이블 원격 운영 옵션 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pretendard 폰트 추가 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -117,25 +117,6 @@
             box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             position: relative;
         }
-        .flow-arrow-v {
-            width: 2px;
-            background-color: #9ca3af;
-            height: 1.5rem;
-            margin: 0.5rem auto;
-            position: relative;
-        }
-        .flow-arrow-v::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 8px solid #9ca3af;
-        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -143,7 +124,7 @@
     <div class="container mx-auto p-4 sm:p-6 md:p-8">
 
         <header class="text-center mb-12 md:mb-16">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">v2.14 서브 테이블 원격 운영 옵션 분석</h1>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">v2.28 (복원) 서브 테이블 원격 운영 옵션 분석</h1>
             <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
         </header>
 
@@ -309,7 +290,8 @@
                      <div class="text-center">
                         <span class="font-bold text-slate-700 text-lg">옵션 3: 완전 이중화</span>
                          <div class="flex mt-2 p-1.5 bg-slate-200 rounded-xl space-x-2">
-                            <button id="btn-option3" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">통합 백업</button>
+                            <button id="btn-option3a" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">a) 원격 백업</button>
+                            <button id="btn-option3b" class="option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out">b) 하이브리드 백업</button>
                         </div>
                     </div>
                 </div>
@@ -363,89 +345,22 @@
 
                     <div class="lg:col-span-2">
                         <h3 id="option-title" class="text-xl font-bold text-slate-800 mb-4 text-center"></h3>
-                        <div class="space-y-6">
+                        <div id="option-details" class="space-y-6">
                             <div><h4 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h4><p id="option-concept" class="text-slate-600 leading-relaxed"></p></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">👥 인원 편제</h4><div id="option-personnel" class="space-y-1 text-slate-600"></div></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 수준</h4><div id="option-risk" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h4><ul id="option-pros" class="space-y-2"></ul></div>
-                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h4><ul id="option-cons" class="space-y-2"></ul></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">� 단점</h4><ul id="option-cons" class="space-y-2"></ul></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- 업무 프로세스 순환 다이어그램 -->
+             <!-- 업무 프로세스 순환 다이어그램 -->
             <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
                 <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">3. 업무 프로세스</h2>
-                <p class="text-center text-slate-500 mb-8">상시 운영부터 비상 대응 및 정상화까지의 전체 업무 흐름을 나타냅니다.</p>
-                <div class="bg-slate-50 p-6 rounded-lg border flex flex-col items-center">
-                    <!-- 1. 상시 업무 루프 -->
-                    <div class="relative w-full max-w-lg p-4 border-2 border-blue-500 rounded-xl bg-blue-50 mb-4">
-                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-                            상시 업무 (Normal)
-                        </div>
-                        <div class="flex justify-around mt-6">
-                            <div class="text-center flow-node w-40">
-                                <p class="font-semibold">🇰🇷 원격 제어</p>
-                                <p class="text-xs text-slate-600 mt-1">스위칭/FR7</p>
-                            </div>
-                            <div class="text-center flow-node w-40">
-                                <p class="font-semibold">🇨🇾 현장 운영</p>
-                                <p class="text-xs text-slate-600 mt-1">프리 카메라</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 장애 발생 연결선 -->
-                    <div class="h-12 w-1 bg-red-400 relative my-2 flex items-center justify-center">
-                        <span class="absolute text-2xl -top-4 text-red-500">⚡️</span>
-                        <div class="absolute bottom-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-red-400"></div>
-                        <span class="absolute top-1/2 -translate-y-1/2 -right-2 translate-x-full text-xs font-bold text-red-600 whitespace-nowrap">장애 발생</span>
-                    </div>
-
-                    <!-- 2. 분기점 -->
-                    <div class="flow-node border-slate-500 w-48">
-                        <p class="font-semibold">장애 해결 프로세스</p>
-                    </div>
-
-                    <!-- 3. 옵션별 경로 -->
-                    <div class="w-full flex justify-center items-start mt-4">
-                        <!-- 옵션 1 & 2 경로 -->
-                        <div class="w-1/2 flex flex-col items-center px-4 border-r">
-                            <p class="font-bold mb-2">옵션 1 & 2</p>
-                            <div class="flow-arrow-v"></div>
-                            <div class="flow-node bg-yellow-100 border-yellow-500 w-48">
-                                <p class="font-semibold text-yellow-800">원격 제어 중단</p>
-                            </div>
-                            <div class="flow-arrow-v"></div>
-                            <div class="flow-node bg-blue-100 border-blue-500 w-48">
-                                <p class="font-semibold text-blue-700">장애 해결 (현장팀)</p>
-                            </div>
-                        </div>
-                        <!-- 옵션 3 경로 -->
-                        <div class="w-1/2 flex flex-col items-center px-4">
-                            <p class="font-bold mb-2">옵션 3</p>
-                            <div class="flow-arrow-v"></div>
-                            <div class="flow-node bg-orange-100 border-orange-500 w-48">
-                                <p class="font-semibold text-orange-700">방송 유지 (현장 백업)</p>
-                            </div>
-                            <div class="flow-arrow-v"></div>
-                            <div class="flow-node bg-blue-100 border-blue-500 w-48">
-                                <p class="font-semibold text-blue-700">장애 해결 (한국팀 우선)</p>
-                            </div>
-                        </div>
-                    </div>
-                     <!-- 복귀 경로 -->
-                    <div class="w-full flex justify-center items-center mt-4">
-                        <div class="w-1/4 h-0.5 bg-slate-300"></div>
-                        <div class="w-1/4 h-0.5 bg-slate-300"></div>
-                    </div>
-                    <div class="w-0.5 h-6 bg-slate-300"></div>
-                    <div class="flow-arrow-v border-dashed border-green-500" style="background-color: transparent; border-left: 2px dashed #10b981;"></div>
-                    <div class="flow-node bg-green-100 border-green-500 w-48">
-                        <p class="font-semibold text-green-700">✅ 상시 업무 복귀</p>
-                    </div>
+                <p class="text-center text-slate-500 mb-8">선택된 옵션에 따른 상시 운영부터 비상 대응 및 정상화까지의 전체 업무 흐름을 나타냅니다.</p>
+                <div id="workflow-diagram-container" class="bg-slate-50 p-6 rounded-lg border flex flex-col items-center relative">
+                    <!-- 이 내용은 JS에 의해 동적으로 채워집니다. -->
                 </div>
             </div>
         </main>
@@ -458,7 +373,7 @@
     <script>
         const optionsData = {
             option1a: {
-                title: '옵션 1a: 원격 제어 + 현장 1인',
+                title: '옵션 1a: 원격 + 현장 1인',
                 concept: '한국에서 스위칭/FR7을 원격 제어하고, 키프로스 현장에서 1인이 프리 카메라를 직접 운영합니다.',
                 personnel: {
                     korea: '원격 제어 1인',
@@ -488,7 +403,7 @@
                 }
             },
             option1b: {
-                title: '옵션 1b: 원격 제어 + 현장 2인',
+                title: '옵션 1b: 원격 + 현장 2인',
                 concept: '한국에서 스위칭/FR7을 원격 제어하고, 키프로스 현장에서 2인이 프리 카메라를 운영하여 안정성을 높입니다.',
                 personnel: {
                     korea: '원격 제어 1인',
@@ -549,18 +464,19 @@
                     diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
                 }
             },
-            option3: {
-                title: '옵션 3: 완전 이중화',
-                concept: '한국 원격팀이 스위칭/FR7을, 현장팀이 프리캠을 담당합니다. 비상시를 대비해 현장에 원격 제어를 백업할 수 있는 인력과 시스템을 추가 배치하는 가장 안정적인 구조입니다.',
+            option3a: {
+                title: '옵션 3a: 원격 제어 백업',
+                concept: '한국 원격팀이 스위칭/FR7을, 현장팀이 프리캠을 담당합니다. 비상시를 대비해 현장에 원격 제어를 백업할 수 있는 인력과 시스템을 추가 배치합니다.',
                 personnel: {
                     korea: '원격 제어 1인',
                     cyprus: '현장 프리캠 1인, 현장 백업 1인'
                 },
                 risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
-                pros: ['모든 기능에 대한 이중화로 안정성 극대화', '원격 및 현장 문제 동시 대응 가능'],
+                pros: ['모든 원격 기능에 대한 이중화로 안정성 극대화', '원격 및 현장 문제 동시 대응 가능'],
                 cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '운영 구조가 복잡함'],
                 diagram: () => {
                     document.getElementById('cyprus-control').classList.remove('hidden'); 
+                    document.getElementById('backup-sub-fr7').classList.remove('hidden');
                     document.getElementById('cyprus-manual-control').classList.remove('hidden');
                     document.getElementById('cyprus-fr7').classList.add('hidden');
                     document.getElementById('cyprus-freecam').classList.remove('hidden');
@@ -583,6 +499,39 @@
                     diagramContainer.appendChild(createControlLine(backup_sw, subTable, 'backup'));
                     diagramContainer.appendChild(createControlLine(backup_fr7, subTable, 'backup'));
                 }
+            },
+             option3b: {
+                title: '옵션 3b: 하이브리드 백업',
+                concept: '한국에서 스위칭만 원격 제어하고, 현장에서 모든 카메라(FR7, 프리캠)를 운영합니다. 비상시를 대비해 현장에 원격 스위칭을 백업할 인력과 시스템을 추가 배치합니다.',
+                personnel: {
+                    korea: '원격 스위칭 1인',
+                    cyprus: '현장 카메라 1인, 현장 백업 1인'
+                },
+                risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
+                pros: ['카메라 제어 지연시간 없음', '스위칭 기능까지 이중화하여 안정성 극대화'],
+                cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '역할 분담이 가장 복잡함'],
+                diagram: () => {
+                    document.getElementById('cyprus-control').classList.remove('hidden');
+                    document.getElementById('backup-sub-fr7').classList.add('hidden');
+                    document.getElementById('cyprus-manual-control').classList.remove('hidden');
+                    document.getElementById('cyprus-fr7').classList.remove('hidden');
+                    document.getElementById('cyprus-freecam').classList.remove('hidden');
+                    document.getElementById('personnel-indicator').classList.add('hidden');
+                    document.getElementById('korea-sub-fr7').classList.add('hidden');
+
+                    const korea_sw = document.getElementById('korea-sub-sw');
+                    const cyprus_fr7 = document.getElementById('cyprus-fr7');
+                    const freecam_op = document.getElementById('cyprus-freecam');
+                    const backup_sw = document.getElementById('backup-sub-sw');
+                    const subTable = document.getElementById('sub-table');
+                    const diagramContainer = document.getElementById('diagram-container');
+
+                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
+                    diagramContainer.appendChild(createControlLine(cyprus_fr7, subTable, 'manual'));
+                    diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
+                    diagramContainer.appendChild(createControlLine(backup_sw, subTable, 'backup'));
+                }
             }
         };
 
@@ -590,7 +539,8 @@
             option1a: document.getElementById('btn-option1a'), 
             option1b: document.getElementById('btn-option1b'), 
             option2: document.getElementById('btn-option2'),
-            option3: document.getElementById('btn-option3')
+            option3a: document.getElementById('btn-option3a'),
+            option3b: document.getElementById('btn-option3b')
         };
         const elements = {
             title: document.getElementById('option-title'), 
@@ -599,7 +549,8 @@
             risk: document.getElementById('option-risk'), 
             pros: document.getElementById('option-pros'), 
             cons: document.getElementById('option-cons'),
-            content: document.getElementById('option-content')
+            content: document.getElementById('option-content'),
+            workflowContainer: document.getElementById('workflow-diagram-container')
         };
 
         function createControlLine(startEl, endEl, type) {
@@ -642,6 +593,122 @@
             return line;
         }
 
+        function renderWorkflowDiagram(optionKey) {
+            let normalKorea, normalCyprus, emergencyFlow;
+            
+            if (optionKey.startsWith('option1') || optionKey === 'option2') {
+                normalKorea = (optionKey === 'option2') ? '스위칭 컷' : '스위칭 컷 / FR7 제어';
+                normalCyprus = (optionKey === 'option2') ? 'FR7 제어 / 프리 카메라' : '프리 카메라';
+                emergencyFlow = `
+                    <div class="w-full flex justify-around text-center text-sm">
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🇰🇷 한국 팀</h4>
+                            <div class="flow-node mt-2 bg-slate-100 h-full flex items-center justify-center">⏳ 대기</div>
+                         </div>
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🇨🇾 현장 팀</h4>
+                             <div class="flow-node mt-2 bg-slate-100 h-full flex items-center justify-center">⏳ 대기</div>
+                         </div>
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🛠️ 기술팀 (현장)</h4>
+                            <div class="flow-node mt-2 bg-blue-100 h-full flex items-center justify-center">장애 복구</div>
+                         </div>
+                    </div>`;
+            } else { // option3a, 3b
+                let cyprusEmergencyRole;
+                if (optionKey === 'option3a') {
+                    normalKorea = '스위칭 컷 / FR7 제어';
+                    normalCyprus = '프리 카메라';
+                    cyprusEmergencyRole = `
+                        <div class="flow-node mt-2 space-y-2">
+                            <div class="control-point bg-gray-200 border-gray-300 text-gray-500">프리 카메라 (홀드)</div>
+                        </div>
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node mt-2 bg-orange-100 border-orange-300 space-y-2">
+                            <div class="control-point">스위칭 컷</div>
+                            <div class="control-point">FR7 제어</div>
+                            <div class="font-bold text-orange-600 text-xs mt-1">역할 전환</div>
+                        </div>`;
+                } else { // option3b
+                    normalKorea = '스위칭 컷';
+                    normalCyprus = 'FR7 제어 / 프리 카메라';
+                     cyprusEmergencyRole = `
+                        <div class="flow-node mt-2 space-y-2">
+                            <div class="control-point bg-emerald-100 border-emerald-300 text-emerald-800">FR7 제어</div>
+                            <div class="control-point bg-gray-200 border-gray-300 text-gray-500">프리 카메라 (홀드)</div>
+                            <div class="font-bold text-slate-400 text-xs mt-1">업무 조정</div>
+                        </div>
+                        <div class="flow-arrow-v"></div>
+                        <div class="flow-node mt-2 bg-orange-100 border-orange-300 space-y-2">
+                             <div class="control-point">스위칭 컷</div>
+                             <div class="font-bold text-orange-600 text-xs mt-1">역할 전환</div>
+                        </div>`;
+                }
+                emergencyFlow = `
+                    <div class="w-full flex justify-around text-center text-sm">
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🇰🇷 한국 팀</h4>
+                            <div class="flow-node mt-2 bg-slate-100 h-full flex items-center justify-center">⏳ 대기</div>
+                         </div>
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🇨🇾 현장 팀</h4>
+                            ${cyprusEmergencyRole}
+                         </div>
+                         <div class="w-1/3 px-1">
+                            <h4 class="font-bold">🛠️ 기술팀 (현장)</h4>
+                            <div class="flow-node mt-2 bg-blue-100 h-full flex items-center justify-center">장애 복구</div>
+                         </div>
+                    </div>`;
+            }
+
+            elements.workflowContainer.innerHTML = `
+                <div class="flex items-center justify-center w-full max-w-4xl mx-auto">
+                    <div id="normal-ops" class="relative w-full p-4 border-2 border-blue-500 rounded-xl bg-blue-50">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+                            상시 업무
+                        </div>
+                        <div class="flex justify-around mt-6">
+                            <div class="text-center flow-node w-56 space-y-2">
+                                <p class="font-semibold">🇰🇷 한국 팀 (원격)</p>
+                                <div class="control-point">${normalKorea.replace(' / ', '</div><div class="control-point">')}</div>
+                            </div>
+                            <div class="text-center flow-node w-56 space-y-2">
+                                <p class="font-semibold">🇨🇾 현장 팀</p>
+                                <div class="control-point">${normalCyprus.replace(' / ', '</div><div class="control-point">')}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="w-full max-w-4xl mx-auto flex justify-center items-stretch" style="height: 8rem;">
+                    <div class="w-1/2 flex justify-end pr-8">
+                         <div class="h-full w-1 bg-green-500 relative flex items-center justify-center">
+                             <div class="absolute top-0 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-green-500"></div>
+                            <span class="absolute top-1/2 -translate-y-1/2 -left-2 -translate-x-full text-xs font-bold text-green-600 whitespace-nowrap">장애 해결</span>
+                        </div>
+                    </div>
+                    <div class="w-1/2 flex justify-start pl-8">
+                        <div class="h-full w-1 bg-red-400 relative flex items-center justify-center">
+                            <span class="absolute text-2xl -top-4 text-red-500">⚡️</span>
+                            <div class="absolute bottom-0 w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-red-400"></div>
+                            <span class="absolute top-1/2 -translate-y-1/2 -right-2 translate-x-full text-xs font-bold text-red-600 whitespace-nowrap">장애 발생</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emergency-ops" class="relative w-full max-w-4xl mx-auto p-4 border-2 border-red-500 rounded-xl bg-red-50 mt-[-10px]">
+                     <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold flex items-center">
+                        🚨 비상시 업무
+                    </div>
+                    <div class="mt-6">
+                        ${emergencyFlow}
+                    </div>
+                </div>
+            `;
+        }
+
+
         function updateDisplay(optionKey) {
             const data = optionsData[optionKey];
             elements.content.style.opacity = 0;
@@ -655,7 +722,7 @@
                   <p><span class="font-semibold">🇰🇷 한국:</span> ${personnelData.korea}</p>
                   <p><span class="font-semibold">🇨🇾 키프로스:</span> ${personnelData.cyprus}</p>
                 `;
-
+                
                 elements.risk.textContent = data.risk.text;
                 elements.risk.className = `inline-block px-4 py-1.5 text-base font-bold rounded-full ${data.risk.class}`;
                 elements.pros.innerHTML = data.pros.map(item => `<li class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><span class="text-slate-600">${item}</span></li>`).join('');
@@ -665,6 +732,7 @@
                 buttons[optionKey].classList.add('active-btn');
                 
                 data.diagram();
+                renderWorkflowDiagram(optionKey);
                 
                 elements.content.style.opacity = 1;
             }, 200);
@@ -676,6 +744,7 @@
                 const activeOptionKey = Object.keys(buttons).find(key => buttons[key] === activeBtn);
                 if (activeOptionKey) {
                     optionsData[activeOptionKey].diagram();
+                    renderWorkflowDiagram(activeOptionKey);
                 }
             }
         }
@@ -693,3 +762,4 @@
     </script>
 </body>
 </html>
+�
