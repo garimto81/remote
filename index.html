@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>v2.29 (복원) 서브 테이블 원격 운영 옵션 분석</title>
+    <title>v2.30 서브 테이블 원격 운영 옵션 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Pretendard 폰트 추가 -->
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -21,7 +21,7 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
-        /* 다이어그램 라인 및 화살표 스타일 */
+        /* 다이어그램 라인 및 화살표 스타일 (기존) */
         .control-line {
             position: absolute;
             border-style: solid;
@@ -117,6 +117,47 @@
             box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             position: relative;
         }
+
+        /* --- 신규 추가된 스타일 --- */
+        .sub-active-btn {
+            background-color: #2563eb !important; /* blue-600 */
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .control-line.remote { border-color: #3b82f6; /* blue-500 */ }
+        .control-line.local { border-color: #10b981; border-style: dotted; /* emerald-500 */ }
+        .control-line.backup { border-color: #f97316; border-style: dashed; /* orange-500 */ }
+        
+        .arrow.remote { border-left: 8px solid #3b82f6; }
+        .arrow.local { border-left: 8px solid #10b981; }
+        .arrow.backup { border-left: 8px solid #f97316; }
+
+        .feature-table {
+            font-weight: 600;
+        }
+        .control-point.external-role {
+            background-color: #f3e8ff; /* purple-100 */
+            border-color: #d8b4fe; /* purple-300 */
+            color: #6b21a8; /* purple-800 */
+        }
+        .scenario-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .scenario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.07);
+        }
+        .scenario-card.active-btn {
+             border-color: #2563eb;
+             background-color: #eff6ff;
+        }
+
     </style>
 </head>
 <body class="text-slate-800">
@@ -124,7 +165,7 @@
     <div class="container mx-auto p-4 sm:p-6 md:p-8">
 
         <header class="text-center mb-12 md:mb-16">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">v2.29 (복원) 서브 테이블 원격 운영 옵션 분석</h1>
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-extrabold text-slate-900 mb-3">v2.30 서브 테이블 원격 운영 옵션 분석</h1>
             <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
         </header>
 
@@ -347,7 +388,8 @@
                         <h3 id="option-title" class="text-xl font-bold text-slate-800 mb-4 text-center"></h3>
                         <div id="option-details" class="space-y-6">
                             <div><h4 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h4><p id="option-concept" class="text-slate-600 leading-relaxed"></p></div>
-                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">� 인원 편제</h4><div id="option-personnel" class="space-y-1 text-slate-600"></div></div>
+                            <div><h4 class="font-bold text-lg mb-3 text-slate-800">👥 인원 편제</h4><div id="option-personnel" class="space-y-1 text-slate-600"></div></div>
+                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">💰 추가 비용 (현장 인력)</h4><div id="option-cost" class="text-xl font-bold text-blue-600"></div></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 수준</h4><div id="option-risk" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h4><ul id="option-pros" class="space-y-2"></ul></div>
                             <div><h4 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h4><ul id="option-cons" class="space-y-2"></ul></div>
@@ -363,6 +405,97 @@
                     <!-- 이 내용은 JS에 의해 동적으로 채워집니다. -->
                 </div>
             </div>
+
+            <!-- ====================================================================== -->
+            <!-- ======================= 신규 섹션: 4. 3테이블 운영 옵션 ======================= -->
+            <!-- ====================================================================== -->
+            <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">4. 3테이블 운영 옵션 분석</h2>
+                
+                <div id="new-dashboard-content" class="mt-8">
+                    <header class="text-center mb-12 md:mb-16">
+                        <p class="text-base md:text-lg text-slate-600">안정성과 효율성에 기반한 최적의 시스템 구조 탐색</p>
+                    </header>
+
+                    <div class="space-y-12">
+                        <!-- 시나리오 선택 섹션 -->
+                        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg ring-1 ring-slate-200">
+                            <h2 class="text-2xl font-bold text-slate-900 mb-2 text-center">운영 시나리오</h2>
+                            <div id="scenario-selector" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <!-- 시나리오 카드는 JS로 생성됩니다. -->
+                            </div>
+                        </div>
+
+                        <!-- 시나리오 분석 섹션 -->
+                        <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg ring-1 ring-slate-200">
+                             <h2 id="analysis-title" class="text-2xl font-bold text-slate-900 mb-8 text-center"></h2>
+                             
+                             <!-- Sub-option selector -->
+                             <div id="sub-option-selector-container" class="mb-6 text-center hidden">
+                                 <div class="inline-flex p-1.5 bg-slate-200 rounded-xl space-x-2">
+                                     <!-- Sub-option buttons are injected here -->
+                                 </div>
+                             </div>
+
+                            <div class="grid lg:grid-cols-5 gap-8">
+                                <div class="lg:col-span-3">
+                                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">운영 제어 흐름</h3>
+                                    <div id="diagram-container-new" class="relative min-h-[24rem] flex justify-around items-stretch px-4 bg-slate-50 rounded-xl border">
+                                        <!-- 한국 제어 센터 -->
+                                        <div class="location-box text-center w-40 flex flex-col">
+                                            <div class="p-4 bg-blue-500 text-white rounded-lg shadow-lg">🇰🇷 한국</div>
+                                            <div class="text-sm font-semibold mt-1">원격 제어 센터</div>
+                                            <div data-id="korea-controls" class="mt-4 space-y-3 min-h-[6rem] flex-grow flex flex-col justify-center items-center">
+                                                <!-- Dynamic Control Points for Korea -->
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 키프로스 현장 및 테이블 -->
+                                        <div class="location-box text-center flex flex-col items-center">
+                                            <div class="p-4 bg-green-500 text-white rounded-lg shadow-lg w-56">🇨🇾 키프로스 현장</div>
+                                            <div class="mt-4 space-y-2 w-full flex-grow flex flex-col">
+                                                <div data-id="cyprus-controls" class="space-y-2 min-h-[3rem]">
+                                                    <!-- Dynamic Control Points for Cyprus -->
+                                                </div>
+                                                <div data-id="cyprus-backup" class="mt-2 feature-table bg-orange-100 border-orange-300">
+                                                    현장 백업 시스템
+                                                </div>
+                                                <div class="mt-4 space-y-3 flex-grow">
+                                                    <div class="feature-table external-op">메인 테이블</div>
+                                                    <div class="mt-3">
+                                                        <div data-id="sub-table-1" class="feature-table">서브 테이블 1</div>
+                                                        <div data-id="sub-table-1-controls" class="mt-2 space-y-1"></div>
+                                                    </div>
+                                                    <div class="mt-3">
+                                                        <div data-id="sub-table-2" class="feature-table">서브 테이블 2</div>
+                                                        <div data-id="sub-table-2-controls" class="mt-2 space-y-1"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="lg:col-span-2">
+                                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">상세 분석</h3>
+                                    <div id="option-details-new" class="space-y-6">
+                                         <div><h4 class="font-bold text-lg mb-2 text-slate-800">💡 개념</h4><p id="option-concept-new" class="text-slate-600 leading-relaxed"></p></div>
+                                         <div><h4 class="font-bold text-lg mb-3 text-slate-800">👥 인력 구성</h4><div id="option-personnel-new" class="space-y-1 text-slate-600"></div></div>
+                                         <div><h4 class="font-bold text-lg mb-3 text-slate-800">⚠️ 리스크 및 비용</h4><div id="option-risk-new" class="inline-block px-4 py-1.5 text-base font-bold rounded-full"></div></div>
+                                         <div><h4 class="font-bold text-lg mb-3 text-slate-800">👍 장점</h4><ul id="option-pros-new" class="space-y-2"></ul></div>
+                                         <div><h4 class="font-bold text-lg mb-3 text-slate-800">👎 단점</h4><ul id="option-cons-new" class="space-y-2"></ul></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <footer class="text-center mt-16 pt-8 border-t border-slate-200">
+                        <p class="text-slate-500 text-sm">&copy; 2024 Interactive System Analysis. All Rights Reserved.</p>
+                    </footer>
+                </div>
+
+            </div>
         </main>
 
         <footer class="text-center mt-16 pt-8 border-t border-slate-200">
@@ -371,6 +504,8 @@
     </div>
 
     <script>
+    // --- 기존 스크립트 (섹션 1-3) ---
+    (function() {
         const optionsData = {
             option1a: {
                 title: '옵션 1a: 원격 + 현장 1인',
@@ -379,6 +514,7 @@
                     korea: '원격 제어 1인',
                     cyprus: '현장 프리캠 운영 1인'
                 },
+                cost: '$10,000',
                 risk: { text: '중', class: 'bg-yellow-100 text-yellow-800' },
                 pros: ['필수 인력만 현장에 파견하여 비용 효율적', '주요 제어는 원격으로 진행하여 효율성 확보'],
                 cons: ['현장 프리캠 운영자 1인에게 과부하 가능성', '원격 시스템 장애 시 현장 대응 능력 제한적'],
@@ -396,7 +532,7 @@
                     const subTable = document.getElementById('sub-table');
                     const diagramContainer = document.getElementById('diagram-container');
 
-                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
                     diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
@@ -409,6 +545,7 @@
                     korea: '원격 제어 1인',
                     cyprus: '현장 프리캠 운영 2인 (로테이션)'
                 },
+                cost: '$20,000',
                 risk: { text: '중하', class: 'bg-lime-100 text-lime-800' },
                 pros: ['현장 인력 2명으로 안정적인 프리캠 운영 가능', '현장 문제 발생 시 상호 백업 및 신속 대응'],
                 cons: ['옵션 1a 대비 출장 인원 증가로 비용 상승', '원격 시스템 장애 리스크는 여전히 존재'],
@@ -428,7 +565,7 @@
                     const subTable = document.getElementById('sub-table');
                     const diagramContainer = document.getElementById('diagram-container');
 
-                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
                     diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
@@ -441,6 +578,7 @@
                     korea: '원격 스위칭 1인',
                     cyprus: '현장 카메라 2인 (FR7, 프리캠)'
                 },
+                cost: '$20,000',
                 risk: { text: '중', class: 'bg-yellow-100 text-yellow-800' },
                 pros: ['카메라 제어의 지연 시간(Latency) 없음', '안정적인 현장 카메라 워크 품질 확보'],
                 cons: ['스위칭은 원격에 의존하여 장애 리스크 존재', '옵션 1a 대비 현장 인력 1명 증가'],
@@ -458,7 +596,7 @@
                     const subTable = document.getElementById('sub-table');
                     const diagramContainer = document.getElementById('diagram-container');
 
-                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
                     diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(cyprus_fr7, subTable, 'manual'));
                     diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
@@ -471,6 +609,7 @@
                     korea: '원격 제어 1인',
                     cyprus: '현장 프리캠 1인, 현장 백업 1인'
                 },
+                cost: '$20,000',
                 risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
                 pros: ['모든 원격 기능에 대한 이중화로 안정성 극대화', '원격 및 현장 문제 동시 대응 가능'],
                 cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '운영 구조가 복잡함'],
@@ -491,7 +630,7 @@
                     const subTable = document.getElementById('sub-table');
                     const diagramContainer = document.getElementById('diagram-container');
 
-                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
                     
                     diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(korea_fr7, subTable, 'main'));
@@ -507,6 +646,7 @@
                     korea: '원격 스위칭 1인',
                     cyprus: '현장 카메라 1인, 현장 백업 1인'
                 },
+                cost: '$20,000',
                 risk: { text: '최하', class: 'bg-teal-100 text-teal-800' },
                 pros: ['카메라 제어 지연시간 없음', '스위칭 기능까지 이중화하여 안정성 극대화'],
                 cons: ['가장 많은 인력(총 3인)과 장비가 투입되어 비용이 가장 높음', '역할 분담이 가장 복잡함'],
@@ -526,7 +666,7 @@
                     const subTable = document.getElementById('sub-table');
                     const diagramContainer = document.getElementById('diagram-container');
 
-                    document.querySelectorAll('.control-line').forEach(line => line.remove());
+                    diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
                     diagramContainer.appendChild(createControlLine(korea_sw, subTable, 'main'));
                     diagramContainer.appendChild(createControlLine(cyprus_fr7, subTable, 'manual'));
                     diagramContainer.appendChild(createControlLine(freecam_op, subTable, 'manual'));
@@ -546,6 +686,7 @@
             title: document.getElementById('option-title'), 
             concept: document.getElementById('option-concept'),
             personnel: document.getElementById('option-personnel'),
+            cost: document.getElementById('option-cost'),
             risk: document.getElementById('option-risk'), 
             pros: document.getElementById('option-pros'), 
             cons: document.getElementById('option-cons'),
@@ -674,7 +815,7 @@
                                 <div class="control-point">${normalKorea.replace(' / ', '</div><div class="control-point">')}</div>
                             </div>
                             <div class="text-center flow-node w-56 space-y-2">
-                                <p class="font-semibold">🇨🇾 현장 팀</p>
+                                <p class="font-semibold">🇨� 현장 팀</p>
                                 <div class="control-point">${normalCyprus.replace(' / ', '</div><div class="control-point">')}</div>
                             </div>
                         </div>
@@ -686,7 +827,7 @@
                          <div class="h-full w-1 bg-green-500 relative flex items-center justify-center">
                              <div class="absolute top-0 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-green-500"></div>
                             <span class="absolute top-1/2 -translate-y-1/2 -left-2 -translate-x-full text-xs font-bold text-green-600 whitespace-nowrap">장애 해결</span>
-                        </div>
+                         </div>
                     </div>
                     <div class="w-1/2 flex justify-start pl-8">
                         <div class="h-full w-1 bg-red-400 relative flex items-center justify-center">
@@ -708,7 +849,6 @@
             `;
         }
 
-
         function updateDisplay(optionKey) {
             const data = optionsData[optionKey];
             elements.content.style.opacity = 0;
@@ -723,6 +863,7 @@
                   <p><span class="font-semibold">🇨🇾 키프로스:</span> ${personnelData.cyprus}</p>
                 `;
                 
+                elements.cost.textContent = data.cost;
                 elements.risk.textContent = data.risk.text;
                 elements.risk.className = `inline-block px-4 py-1.5 text-base font-bold rounded-full ${data.risk.class}`;
                 elements.pros.innerHTML = data.pros.map(item => `<li class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><span class="text-slate-600">${item}</span></li>`).join('');
@@ -758,7 +899,454 @@
         });
         window.addEventListener('load', initializeApp);
         window.addEventListener('resize', redrawAllDiagrams);
+    })();
+    </script>
 
+    <script>
+    // --- 신규 스크립트 (섹션 4) ---
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const scenarios = {
+            s1: {
+                title: '시나리오 1: 원격 + 현장',
+                subtitle: '원격 제어 + 현장 프리캠',
+                subOptions: {
+                    a: {
+                        title: '옵션 a: 현장 1인 (+외주)',
+                        concept: '한국에서 2개 서브 테이블의 스위칭과 FR7을 모두 원격 제어하고, 현장에서는 1명의 오퍼레이터가 프리카메라를 운영합니다 (추가 1명은 외주 인력 활용).',
+                        personnel: { korea: '원격 오퍼레이터 1~2명', cyprus: '프리캠 오퍼레이터 1명 (+외주)' },
+                        risk: { text: '리스크: 중 / 비용: 중하', class: 'bg-yellow-100 text-yellow-800' },
+                        pros: ['핵심 인력 1명만 파견하여 출장 비용을 절감할 수 있습니다.', '원격과 현장 운영을 병행하여 유연성을 확보합니다.'],
+                        cons: [
+                            '현장 인력 1명에게 과부하가 걸릴 수 있습니다.',
+                            '외주 인력과의 커뮤니케이션 및 품질 관리 이슈가 발생할 수 있습니다.',
+                            '원격 시스템의 장애 리스크는 여전히 존재합니다.'
+                        ],
+                        diagram: {
+                            controls: {
+                                korea: [
+                                    { id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-fr7-1', label: 'FR7' },
+                                    { id: 'korea-sw-2', label: '스위칭' }, { id: 'korea-fr7-2', label: 'FR7' },
+                                ],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-freecam-1', label: '프리캠' }],
+                                'sub-table-2': [{ id: 'cyprus-freecam-2', label: '프리캠 (외주)', class: 'external-role' }]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-fr7-1', to: 'sub-table-1', type: 'remote' },
+                                { from: 'korea-sw-2', to: 'sub-table-2', type: 'remote' }, { from: 'korea-fr7-2', to: 'sub-table-2', type: 'remote' },
+                                { from: 'cyprus-freecam-1', to: 'sub-table-1', type: 'local' },
+                                { from: 'cyprus-freecam-2', to: 'sub-table-2', type: 'local' }
+                            ],
+                            backup: false
+                        }
+                    },
+                    b: {
+                        title: '옵션 b: 현장 2인',
+                        concept: '한국에서 2개 서브 테이블의 스위칭과 FR7을 모두 원격 제어하고, 현장에서는 2명의 오퍼레이터가 각각 프리카메라를 운영하여 안정성을 높입니다.',
+                        personnel: { korea: '원격 오퍼레이터 1~2명', cyprus: '프리캠 오퍼레이터 2명' },
+                        risk: { text: '리스크: 중하 / 비용: 중', class: 'bg-lime-100 text-lime-800' },
+                        pros: ['현장 인력 2명으로 안정적인 프리캠 운영이 가능합니다.', '현장 문제 발생 시 상호 백업 및 신속한 대응이 가능합니다.'],
+                        cons: [
+                            '현장 출장 인원이 2명으로 늘어나 비용이 증가합니다.',
+                            '원격 제어 시스템의 장애 리스크는 여전히 존재합니다.'
+                        ],
+                        diagram: {
+                            controls: {
+                                korea: [
+                                    { id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-fr7-1', label: 'FR7' },
+                                    { id: 'korea-sw-2', label: '스위칭' }, { id: 'korea-fr7-2', label: 'FR7' },
+                                ],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-freecam-1', label: '프리캠' }],
+                                'sub-table-2': [{ id: 'cyprus-freecam-2', label: '프리캠' }]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-fr7-1', to: 'sub-table-1', type: 'remote' },
+                                { from: 'korea-sw-2', to: 'sub-table-2', type: 'remote' }, { from: 'korea-fr7-2', to: 'sub-table-2', type: 'remote' },
+                                { from: 'cyprus-freecam-1', to: 'sub-table-1', type: 'local' },
+                                { from: 'cyprus-freecam-2', to: 'sub-table-2', type: 'local' }
+                            ],
+                            backup: false
+                        }
+                    }
+                }
+            },
+            s2: {
+                title: '시나리오 2: 하이브리드',
+                subtitle: '원격 스위칭 + 현장 카메라',
+                subOptions: {
+                    a: {
+                        title: '옵션 a: 현장 2인 (내부)',
+                        concept: '한국에서 스위칭을 원격 제어하고, 현장에서는 내부 인력 2명이 각각의 서브 테이블 FR7과 프리캠을 모두 담당하여 최고의 품질을 보장합니다.',
+                        personnel: { korea: '스위칭 1명', cyprus: '카메라 오퍼레이터 2명' },
+                        risk: { text: '리스크: 중 / 비용: 상', class: 'bg-yellow-100 text-yellow-800' },
+                        pros: ['내부 인력 간의 원활한 소통으로 높은 방송 품질을 기대할 수 있습니다.'],
+                        cons: ['현장 출장 인원이 2명으로 비용 부담이 높습니다.', '원격 스위칭 장애 리스크가 존재합니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [{ id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-sw-2', label: '스위칭' }],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-fr7-1', label: 'FR7' }, { id: 'cyprus-freecam-1', label: '프리캠' }],
+                                'sub-table-2': [{ id: 'cyprus-fr7-2', label: 'FR7' }, { id: 'cyprus-freecam-2', label: '프리캠' }]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-sw-2', to: 'sub-table-2', type: 'remote' }
+                            ],
+                            backup: false
+                        }
+                    },
+                    b: {
+                        title: '옵션 b: 현장 1인 (+외주)',
+                        concept: '한국에서 스위칭을 원격 제어하고, 현장에서는 내부 인력 1명이 FR7을, 외주 인력 1명이 프리캠을 담당하여 비용 효율성을 높입니다.',
+                        personnel: { korea: '스위칭 1명', cyprus: 'FR7 1명 + 프리캠 1명 (외주)' },
+                        risk: { text: '리스크: 중 / 비용: 중', class: 'bg-yellow-100 text-yellow-800' },
+                        pros: ['출장 인원을 1명으로 줄여 비용을 절감할 수 있습니다.'],
+                        cons: ['외주 인력과의 소통 및 품질 관리 문제가 발생할 수 있습니다.', '원격 스위칭 장애 리스크가 존재합니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [{ id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-sw-2', label: '스위칭' }],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-fr7-1', label: 'FR7' }, { id: 'cyprus-freecam-1', label: '프리캠' }],
+                                'sub-table-2': [{ id: 'cyprus-fr7-2', label: 'FR7' }, { id: 'cyprus-freecam-2', label: '프리캠 (외주)', class: 'external-role' }]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-sw-2', to: 'sub-table-2', type: 'remote' }
+                            ],
+                            backup: false
+                        }
+                    },
+                    c: {
+                        title: '옵션 c: 현장 FR7 + 프리캠 외주',
+                        concept: '한국에서 스위칭을 원격 제어하고, 현장에서는 내부 인력이 FR7을, 외주 인력 2명이 프리캠을 담당하여 출장 비용을 최소화합니다.',
+                        personnel: { korea: '스위칭 1명', cyprus: 'FR7 1명 + 프리캠 2명 (외주)' },
+                        risk: { text: '리스크: 중상 / 비용: 중하', class: 'bg-orange-100 text-orange-800' },
+                        pros: ['현장 출장 인력을 최소화하면서 핵심 역할(FR7)은 내부에서 담당할 수 있습니다.'],
+                        cons: ['외주 인력에 대한 의존도가 높아 품질 및 커뮤니케이션 리스크가 큽니다.', '원격 스위칭 장애 리스크가 존재합니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [{ id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-sw-2', label: '스위칭' }],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-fr7-1', label: 'FR7' }, { id: 'cyprus-freecam-1', label: '프리캠 (외주)', class: 'external-role' }],
+                                'sub-table-2': [{ id: 'cyprus-fr7-2', label: 'FR7' }, { id: 'cyprus-freecam-2', label: '프리캠 (외주)', class: 'external-role' }]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-sw-2', to: 'sub-table-2', type: 'remote' }
+                            ],
+                            backup: false
+                        }
+                    }
+                }
+            },
+            s3: {
+                title: '시나리오 3: 완전 분산 하이브리드',
+                subtitle: '테이블별 1:1 전담',
+                subOptions: {
+                    a: {
+                        title: '옵션 a: 현장 3인 (내부)',
+                        concept: "한국에서 서브 테이블 1개를 원격 전담하고, 현지에서는 내부 인력 3명이 서브 테이블 2와 양쪽 프리캠을 모두 담당합니다.",
+                        personnel: { korea: '원격 오퍼레이터 1명', cyprus: '현장 오퍼레이터 3명' },
+                        risk: { text: '리스크: 하 / 비용: 최상', class: 'bg-green-100 text-green-800' },
+                        pros: [ '테이블별 운영 주체가 명확하고, 현장 운영 파트는 네트워크 장애로부터 안전합니다.'],
+                        cons: [ '원격 테이블은 리스크에 노출되며, 총 4명의 내부 인력이 필요하여 비용이 매우 높습니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [ { id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-fr7-1', label: 'FR7' } ],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-freecam-1', label: '프리캠' }],
+                                'sub-table-2': [
+                                    { id: 'cyprus-sw-2', label: '스위칭' },
+                                    { id: 'cyprus-fr7-2', label: 'FR7' },
+                                    { id: 'cyprus-freecam-2', label: '프리캠' }
+                                ]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-fr7-1', to: 'sub-table-1', type: 'remote' },
+                                { from: 'cyprus-freecam-1', to: 'sub-table-1', type: 'local' }
+                            ],
+                            backup: false
+                        }
+                    },
+                    b: {
+                        title: '옵션 b: 현장 2인 (+외주)',
+                        concept: "한국에서 서브 테이블 1개를 원격 전담하고, 현장에서는 내부 인력 2명이 서브 테이블 2와 프리캠 1개를, 외주 인력이 나머지 프리캠 1개를 담당합니다.",
+                        personnel: { korea: '원격 오퍼레이터 1명', cyprus: '현장 오퍼레이터 2명 (+외주 1명)' },
+                        risk: { text: '리스크: 중하 / 비용: 상', class: 'bg-lime-100 text-lime-800' },
+                        pros: ['현장 인력을 일부 외주로 대체하여 비용을 절감할 수 있습니다.'],
+                        cons: ['원격 테이블 리스크와 외주 인력과의 소통 문제가 동시에 존재합니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [ { id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-fr7-1', label: 'FR7' } ],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-freecam-1', label: '프리캠 (외주)', class: 'external-role' }],
+                                'sub-table-2': [
+                                    { id: 'cyprus-sw-2', label: '스위칭' },
+                                    { id: 'cyprus-fr7-2', label: 'FR7' },
+                                    { id: 'cyprus-freecam-2', label: '프리캠' }
+                                ]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-fr7-1', to: 'sub-table-1', type: 'remote' },
+                                { from: 'cyprus-freecam-1', to: 'sub-table-1', type: 'local' }
+                            ],
+                            backup: false
+                        }
+                    },
+                     c: {
+                        title: '옵션 c: 현장 1인 (+외주)',
+                        concept: "한국에서 서브 테이블 1개를 원격 전담하고, 현장에서는 내부 인력 1명이 서브 테이블 2를, 외주 인력 2명이 양쪽 프리캠을 담당합니다.",
+                        personnel: { korea: '원격 오퍼레이터 1명', cyprus: '현장 오퍼레이터 1명 (+외주 2명)' },
+                        risk: { text: '리스크: 중 / 비용: 중', class: 'bg-yellow-100 text-yellow-800' },
+                        pros: ['내부 출장 인력을 2명으로 최소화하면서 역할을 분산할 수 있습니다.'],
+                        cons: ['외주 의존도가 높아 품질 및 소통 리스크가 큽니다.', '원격 테이블은 네트워크 리스크에 노출됩니다.'],
+                        diagram: {
+                            controls: {
+                                korea: [ { id: 'korea-sw-1', label: '스위칭' }, { id: 'korea-fr7-1', label: 'FR7' } ],
+                                cyprus: [],
+                                'sub-table-1': [{ id: 'cyprus-freecam-1', label: '프리캠 (외주)', class: 'external-role' }],
+                                'sub-table-2': [
+                                    { id: 'cyprus-sw-2', label: '스위칭' },
+                                    { id: 'cyprus-fr7-2', label: 'FR7' },
+                                    { id: 'cyprus-freecam-2', label: '프리캠 (외주)', class: 'external-role' }
+                                ]
+                            },
+                            lines: [
+                                { from: 'korea-sw-1', to: 'sub-table-1', type: 'remote' }, { from: 'korea-fr7-1', to: 'sub-table-1', type: 'remote' },
+                                { from: 'cyprus-freecam-1', to: 'sub-table-1', type: 'local' }
+                            ],
+                            backup: false
+                        }
+                    }
+                }
+            },
+            s4: {
+                title: '시나리오 4: 완전 로컬',
+                subtitle: '현장 운영 + 프리캠 외주',
+                concept: '원격 제어 없이, 현지에서 내부 인력이 2개 서브 테이블의 스위칭과 FR7 운영을 모두 책임집니다. 프리캠 운영은 외주 인력을 활용하여 효율성을 높입니다.',
+                personnel: { korea: '인력 불필요', cyprus: '현장 오퍼레이터 2명 + 프리캠 2명 (외주)' },
+                risk: { text: '리스크: 하 / 비용: 상', class: 'bg-green-100 text-green-800' },
+                pros: ['네트워크 리스크가 없으며, 핵심 운영을 내부 인력이 담당하여 안정적입니다.', '프리캠 외주를 통해 비용을 일부 절감할 수 있습니다.'],
+                cons: ['여전히 2명의 내부 인력 파견 비용이 발생합니다.', '외주 인력과의 소통 및 품질 관리 이슈가 발생할 수 있습니다.'],
+                diagram: {
+                    controls: {
+                        korea: [],
+                        cyprus: [],
+                        'sub-table-1': [
+                            { id: 'cyprus-sw-1', label: '스위칭' },
+                            { id: 'cyprus-fr7-1', label: 'FR7' },
+                            { id: 'cyprus-freecam-1', label: '프리캠 (외주)', class: 'external-role' }
+                        ], 
+                        'sub-table-2': [
+                            { id: 'cyprus-sw-2', label: '스위칭' },
+                            { id: 'cyprus-fr7-2', label: 'FR7' },
+                            { id: 'cyprus-freecam-2', label: '프리캠 (외주)', class: 'external-role' }
+                        ]
+                    },
+                    lines: [],
+                    backup: false
+                }
+            }
+        };
+
+        const DOM = {
+            selector: document.getElementById('scenario-selector'),
+            analysisTitle: document.getElementById('analysis-title'),
+            subOptionContainer: document.getElementById('sub-option-selector-container'),
+            diagramContainer: document.getElementById('diagram-container-new'),
+            details: {
+                concept: document.getElementById('option-concept-new'),
+                personnel: document.getElementById('option-personnel-new'),
+                risk: document.getElementById('option-risk-new'),
+                pros: document.getElementById('option-pros-new'),
+                cons: document.getElementById('option-cons-new'),
+            },
+            controlContainers: {
+                korea: document.querySelector('#new-dashboard-content [data-id="korea-controls"]'),
+                cyprus: document.querySelector('#new-dashboard-content [data-id="cyprus-controls"]'),
+                'sub-table-1': document.querySelector('#new-dashboard-content [data-id="sub-table-1-controls"]'),
+                'sub-table-2': document.querySelector('#new-dashboard-content [data-id="sub-table-2-controls"]')
+            },
+            staticPoints: {
+                'sub-table-1': document.querySelector('#new-dashboard-content [data-id="sub-table-1"]'),
+                'sub-table-2': document.querySelector('#new-dashboard-content [data-id="sub-table-2"]'),
+                'cyprus-backup': document.querySelector('#new-dashboard-content [data-id="cyprus-backup"]')
+            }
+        };
+
+        let activeState = { scenario: 's1', subOption: 'a' };
+
+        function createScenarioCards() {
+            const mainScenarios = { s1: scenarios.s1, s2: scenarios.s2, s3: scenarios.s3, s4: scenarios.s4 };
+            Object.keys(mainScenarios).forEach(key => {
+                const scenario = mainScenarios[key];
+                const card = document.createElement('div');
+                card.className = 'scenario-card';
+                card.dataset.scenarioKey = key;
+                card.innerHTML = `
+                    <h3 class="font-bold text-lg text-slate-800">${scenario.title}</h3>
+                    <p class="text-sm text-slate-500">${scenario.subtitle}</p>
+                `;
+                DOM.selector.appendChild(card);
+            });
+        }
+
+        function createControlLine(startEl, endEl, type) {
+            const containerRect = DOM.diagramContainer.getBoundingClientRect();
+            const startRect = startEl.getBoundingClientRect();
+            const endRect = endEl.getBoundingClientRect();
+
+            const startX = startRect.left + startRect.width / 2 - containerRect.left;
+            const startY = startRect.top + startRect.height / 2 - containerRect.top;
+            const endX = endRect.left + endRect.width / 2 - containerRect.left;
+            const endY = endRect.top + endRect.height / 2 - containerRect.top;
+
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            const line = document.createElement('div');
+            line.className = `control-line ${type}`;
+            line.style.width = `${length}px`;
+            line.style.top = `${startY}px`;
+            line.style.left = `${startX}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+
+            const arrow = document.createElement('div');
+            arrow.className = `arrow ${type}`;
+            line.appendChild(arrow);
+            return line;
+        }
+        
+        function updateDiagram(config) {
+            Object.values(DOM.controlContainers).forEach(c => c.innerHTML = '');
+            DOM.diagramContainer.querySelectorAll('.control-line').forEach(line => line.remove());
+
+            const dynamicControlPoints = {};
+            Object.keys(config.controls).forEach(location => {
+                const container = DOM.controlContainers[location];
+                if (container) {
+                    config.controls[location].forEach(control => {
+                        const point = document.createElement('div');
+                        point.className = 'control-point';
+                        if (control.class) {
+                            point.classList.add(control.class);
+                        }
+                        point.textContent = control.label;
+                        point.dataset.id = control.id;
+                        container.appendChild(point);
+                        dynamicControlPoints[control.id] = point;
+                    });
+                }
+            });
+
+            // Handle local controls that are not under sub-tables
+            const localControlsToDraw = [];
+            ['sub-table-1', 'sub-table-2'].forEach(tableKey => {
+                if (config.controls[tableKey]) {
+                    config.controls[tableKey].forEach(control => {
+                        localControlsToDraw.push({from: control.id, to: tableKey, type: 'local'});
+                    });
+                }
+            });
+
+
+            DOM.staticPoints['cyprus-backup'].style.display = config.backup ? 'block' : 'none';
+
+            setTimeout(() => {
+                const allLines = [...config.lines, ...localControlsToDraw];
+                allLines.forEach(lineInfo => {
+                    const startEl = dynamicControlPoints[lineInfo.from] || DOM.staticPoints[lineInfo.from];
+                    const endEl = dynamicControlPoints[lineInfo.to] || DOM.staticPoints[lineInfo.to];
+                    if (startEl && endEl) {
+                        DOM.diagramContainer.appendChild(createControlLine(startEl, endEl, lineInfo.type));
+                    }
+                });
+            }, 50); // A small delay to ensure DOM is painted
+        }
+
+        function updateDisplay(scenarioKey, subOptionKey = null) {
+            activeState = { scenario: scenarioKey, subOption: subOptionKey };
+
+            const mainScenario = scenarios[scenarioKey];
+            // If there are no sub-options, use the main scenario object as the data source
+            const displayData = subOptionKey ? mainScenario.subOptions[subOptionKey] : mainScenario;
+
+            document.querySelectorAll('.scenario-card').forEach(card => {
+                card.classList.toggle('active-btn', card.dataset.scenarioKey === scenarioKey);
+            });
+
+            const subOptionSelector = DOM.subOptionContainer.querySelector('div');
+            if (mainScenario.subOptions && Object.keys(mainScenario.subOptions).length > 0) {
+                DOM.subOptionContainer.classList.remove('hidden');
+                subOptionSelector.innerHTML = '';
+                Object.keys(mainScenario.subOptions).forEach(key => {
+                    const subOption = mainScenario.subOptions[key];
+                    const button = document.createElement('button');
+                    button.className = 'sub-option-btn px-3 py-2 sm:px-4 sm:py-2.5 bg-white rounded-lg shadow-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all duration-300 ease-in-out';
+                    button.textContent = subOption.title;
+                    button.dataset.subOptionKey = key;
+                    if (key === subOptionKey) {
+                        button.classList.add('sub-active-btn');
+                    }
+                    subOptionSelector.appendChild(button);
+                });
+            } else {
+                DOM.subOptionContainer.classList.add('hidden');
+            }
+
+            const detailsPanel = document.getElementById('option-details-new');
+            detailsPanel.style.opacity = 0;
+            
+            setTimeout(() => {
+                DOM.analysisTitle.textContent = `${displayData.title} 분석`;
+                DOM.details.concept.textContent = displayData.concept;
+                DOM.details.personnel.innerHTML = `<p><span class="font-semibold">🇰🇷 한국:</span> ${displayData.personnel.korea}</p><p><span class="font-semibold">🇨🇾 키프로스:</span> ${displayData.personnel.cyprus}</p>`;
+                DOM.details.risk.textContent = displayData.risk.text;
+                DOM.details.risk.className = `inline-block px-4 py-1.5 text-base font-bold rounded-full ${displayData.risk.class}`;
+                DOM.details.pros.innerHTML = displayData.pros.map(item => `<li class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><span class="text-slate-600">${item}</span></li>`).join('');
+                DOM.details.cons.innerHTML = displayData.cons.map(item => `<li class="flex items-start"><span class="text-red-500 mr-3 text-xl">✗</span><span class="text-slate-600">${item}</span></li>`).join('');
+                detailsPanel.style.opacity = 1;
+            }, 200);
+
+            updateDiagram(displayData.diagram);
+        }
+
+        DOM.selector.addEventListener('click', (e) => {
+            const card = e.target.closest('.scenario-card');
+            if (card) {
+                const scenarioKey = card.dataset.scenarioKey;
+                const mainScenario = scenarios[scenarioKey];
+                // Default to 'a' if subOptions exist, otherwise null
+                const subOptionKey = mainScenario.subOptions ? 'a' : null;
+                updateDisplay(scenarioKey, subOptionKey);
+            }
+        });
+
+        DOM.subOptionContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.sub-option-btn');
+            if (button) {
+                updateDisplay(activeState.scenario, button.dataset.subOptionKey);
+            }
+        });
+
+        createScenarioCards();
+        updateDisplay('s1', 'a'); 
+
+        const resizeObserver = new ResizeObserver(() => {
+             const activeCard = document.querySelector('.scenario-card.active-btn');
+             if(activeCard) {
+                 const scenarioKey = activeCard.dataset.scenarioKey;
+                 const activeSubOption = document.querySelector('.sub-active-btn');
+                 const subOptionKey = activeSubOption ? activeSubOption.dataset.subOptionKey : (scenarios[scenarioKey].subOptions ? 'a' : null);
+                 const displayData = subOptionKey ? scenarios[scenarioKey].subOptions[subOptionKey] : scenarios[scenarioKey];
+                 if (displayData && displayData.diagram) {
+                    updateDiagram(displayData.diagram);
+                 }
+             }
+        });
+        resizeObserver.observe(DOM.diagramContainer);
+    });
     </script>
 </body>
 </html>
